@@ -1,7 +1,7 @@
 export const CONTROL_SHEETS = {
   data: {
-    spreadsheetId: "1VuxV5doIkDNis3THLZ5ObF6mRjshIb-CdsHf-65C9fw"
-  }
+    spreadsheetId: "1VuxV5doIkDNis3THLZ5ObF6mRjshIb-CdsHf-65C9fw",
+  },
 };
 
 /**
@@ -21,7 +21,7 @@ export async function sheetsGet(
   return sheets.spreadsheets.values.get({
     auth,
     spreadsheetId,
-    range
+    range,
   });
 }
 
@@ -45,7 +45,7 @@ export async function getRawLastId(
     const response = await sheets.spreadsheets.values.get({
       auth,
       spreadsheetId,
-      range
+      range,
     });
 
     if (response.data.values != null) {
@@ -72,7 +72,7 @@ export async function updateLastId(
   auth: any,
   spreadsheetId: string,
   range: string,
-  lastId: number
+  lastId: number,
 ) {
   sheets.spreadsheets.values.update({
     auth,
@@ -81,9 +81,9 @@ export async function updateLastId(
     valueInputOption: "USER_ENTERED",
     requestBody: {
       values: [
-        [lastId]
-      ]
-    }
+        [lastId],
+      ],
+    },
   });
 }
 
@@ -101,7 +101,7 @@ export async function sheetsAppend(
   auth: any,
   spreadsheetId: string,
   range: string,
-  rows: any
+  rows: any,
 ): Promise<any> {
   return sheets.spreadsheets.values.append({
     auth,
@@ -109,7 +109,33 @@ export async function sheetsAppend(
     range,
     valueInputOption: "USER_ENTERED",
     requestBody: {
-      values: rows
-    }
+      values: rows,
+    },
+  });
+}
+
+/**
+ * Update rows from a Sheet.
+ * @param {any} sheets sheet instance.
+ * @param {any} auth auth instance.
+ * @param {any} spreadsheetId spreadsheetId value.
+ * @param {any} range range of sheet.
+ * @param {any} rows lastId of sheet.
+ */
+export async function sheetUpdateRows(
+  sheets: any,
+  auth: any,
+  spreadsheetId: string,
+  range: string,
+  rows: any
+) {
+  sheets.spreadsheets.values.update({
+    auth,
+    spreadsheetId,
+    range,
+    valueInputOption: "USER_ENTERED",
+    requestBody: {
+      values: rows,
+    },
   });
 }
