@@ -7,3 +7,7 @@ typings/
 
 # Node.js dependency directory
 node_modules/
+
+# Firebase
+firebase-debug.log
+.firebase-debug.log
