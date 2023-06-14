@@ -1,7 +1,7 @@
-import { google } from "googleapis";
-import { googleAuth } from "../../util/google_auth";
+import {googleAuth} from "../../util/google_auth";
 import {
   CONTROL_SHEETS,
+  getSheetInstance,
   sheetsGet,
 } from "../../util/sheets_util";
 import express = require("express");
@@ -21,37 +21,42 @@ route.use((_req: any, _res: any, next: () => void) => {
  * Developed by Juan Ortiz
  */
 route.get("/:email", async (req: any, res: any) => {
+  let code = 500;
+  let payloadResponse = null;
+
   try {
     const spreadsheetId = CONTROL_SHEETS.data.spreadsheetId;
-    const sheets = google.sheets({ version: "v4", auth: googleAuth });
+    const sheets = getSheetInstance();
     const sheetQuery = await sheetsGet(
       sheets,
       googleAuth,
       spreadsheetId,
-      "user!A3:C",
+      "usuario!A3:C",
     );
 
-    const found = sheetQuery.data.values.find((item: any[]) => item[1] == req.params.email);
+    const found = sheetQuery.data.values.find((item: any[]) => {
+      return item[1] == req.params.email;
+    });
 
     if (found !== undefined) {
-      const response = {
-        code: 0,
-        data: found,
-      };
-    
-      res.status(200).send(JSON.stringify(response));
+      payloadResponse = found;
+      code = 200;
     } else {
-      const response = {
-        code: -2,
-      };
-  
-      res.status(404).send(JSON.stringify(response));
+      code = 404;
     }
   } catch {
-    const response = {
-      code: -1,
-    };
-
-    res.status(400).send(JSON.stringify(response));
+    code = 400;
   }
+
+  // Response
+
+  let response = null;
+
+  if(code >= 200 && code < 400) {
+    response = {
+      data: payloadResponse,
+    }
+  }
+
+  res.status(code).send(response);
 });

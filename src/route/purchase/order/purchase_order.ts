@@ -16,7 +16,6 @@ import express = require("express");
 export const routePurchaseOrder = express.Router();
 
 routePurchaseOrder.use((_req: any, _res: any, next: () => void) =>{
-  console.log("Purchase Order | Time: ", Date.now());
   next();
 });
 

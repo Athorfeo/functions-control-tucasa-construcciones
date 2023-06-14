@@ -1,3 +1,6 @@
+import {google} from "googleapis";
+import {googleAuth} from "../util/google_auth";
+
 export const CONTROL_SHEETS = {
   data: {
     spreadsheetId: "1VuxV5doIkDNis3THLZ5ObF6mRjshIb-CdsHf-65C9fw",
@@ -5,7 +8,15 @@ export const CONTROL_SHEETS = {
 };
 
 /**
- * Get a Sheet instance.
+ * Get a Google Sheet instance.
+ * @return {GoogleAuth<JSONClient>} GoogleAuth instance.
+ */
+export function getSheetInstance() {
+  return google.sheets({version: "v4", auth: googleAuth});
+}
+
+/**
+ * Get a sheet data.
  * @param {any} sheets sheet instance.
  * @param {any} auth auth instance.
  * @param {any} spreadsheetId spreadsheetId value.
