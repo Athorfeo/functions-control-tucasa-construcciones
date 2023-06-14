@@ -4,6 +4,7 @@ import bodyParser = require("body-parser");
 import {routeChapters} from "./route/data/data_chapters";
 import {routePurchaseOrder} from "./route/purchase/order/purchase_order";
 import {route as projectRoute} from "./route/project/project";
+import {route as userRoute} from "./route/user/user";
 
 const api = express();
 
@@ -15,6 +16,7 @@ api.get("/", async (req, res) => {
 });
 
 api.use("/project", projectRoute);
+api.use("/user", userRoute);
 api.use("/data/chapters", routeChapters);
 api.use("/purchase/order", routePurchaseOrder);
 
