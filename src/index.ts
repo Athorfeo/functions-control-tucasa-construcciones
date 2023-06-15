@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions";
 import * as express from "express";
+import * as cors from "cors";
 import bodyParser = require("body-parser");
 import {routeChapters} from "./route/data/data_chapters";
 import {routePurchaseOrder} from "./route/purchase/order/purchase_order";
@@ -8,6 +9,7 @@ import {route as userRoute} from "./route/user/user";
 
 const api = express();
 
+api.use(cors({origin: true}));
 api.use(bodyParser.json());
 api.use(bodyParser.urlencoded({extended: true}));
 

@@ -32,11 +32,10 @@ route.get("/", async (req: any, res: any) => {
   );
 
   const response = {
-    code: 0,
     data: {
       projects: sheetQuery.data.values,
     },
   };
 
-  res.status(200).send(JSON.stringify(response));
+  res.status(200).send(response);
 });

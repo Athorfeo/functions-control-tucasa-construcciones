@@ -39,7 +39,11 @@ route.get("/:email", async (req: any, res: any) => {
     });
 
     if (found !== undefined) {
-      payloadResponse = found;
+      payloadResponse = {
+        id: found[0],
+        email: found[1],
+        rol: found[2],
+      };
       code = 200;
     } else {
       code = 404;
@@ -49,13 +53,11 @@ route.get("/:email", async (req: any, res: any) => {
   }
 
   // Response
-
   let response = null;
-
-  if(code >= 200 && code < 400) {
-    response = {
+  if (code >= 200 && code < 400) {
+    response = JSON.stringify({
       data: payloadResponse,
-    }
+    });
   }
 
   res.status(code).send(response);
