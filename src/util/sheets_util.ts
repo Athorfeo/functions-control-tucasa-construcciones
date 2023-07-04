@@ -8,6 +8,16 @@ export const CONTROL_SHEETS = {
 };
 
 /**
+ * Validate sheet response
+ * @param {any} response sheet response.
+ */
+export function validateSheetResponse(response: any) {
+  if (response.status < 200 && response.status >= 300) {
+    throw Error("Google service status error: " + response.status);
+  }
+}
+
+/**
  * Get a Google Sheet instance.
  * @return {GoogleAuth<JSONClient>} GoogleAuth instance.
  */
@@ -50,24 +60,13 @@ export async function getRawLastId(
   spreadsheetId: string,
   range: string
 ): Promise<number> {
-  let lastId = -1;
+  const response = await sheets.spreadsheets.values.get({
+    auth,
+    spreadsheetId,
+    range,
+  });
 
-  try {
-    const response = await sheets.spreadsheets.values.get({
-      auth,
-      spreadsheetId,
-      range,
-    });
-
-    if (response.data.values != null) {
-      lastId = parseInt(response.data.values[0][0]);
-      console.log(`rawLastId: ${lastId}`);
-    }
-  } catch (error) {
-    console.log(error);
-  }
-
-  return lastId;
+  return parseInt(response.data.values[0][0]);
 }
 
 /**
@@ -84,8 +83,8 @@ export async function updateLastId(
   spreadsheetId: string,
   range: string,
   lastId: number,
-) {
-  sheets.spreadsheets.values.update({
+): Promise<any> {
+  return sheets.spreadsheets.values.update({
     auth,
     spreadsheetId,
     range,
@@ -139,14 +138,49 @@ export async function sheetUpdateRows(
   spreadsheetId: string,
   range: string,
   rows: any
-) {
-  sheets.spreadsheets.values.update({
+): Promise<any> {
+  return sheets.spreadsheets.values.update({
     auth,
     spreadsheetId,
     range,
     valueInputOption: "USER_ENTERED",
     requestBody: {
       values: rows,
+    },
+  });
+}
+
+/**
+ * Delete rows from a Sheet.
+ * @param {any} sheets sheet instance.
+ * @param {any} auth auth instance.
+ * @param {any} spreadsheetId spreadsheetId value.
+ * @param {any} sheetId sheetId value.
+ * @param {any} startPosition start position of sheet range.
+ * @param {any} endPosition end position of sheet range.
+ */
+export async function deleteRowsSheet(
+  sheets: any,
+  auth: any,
+  spreadsheetId: string,
+  sheetId: number,
+  startPosition: number,
+  endPosition: number,
+): Promise<any> {
+  return sheets.spreadsheets.batchUpdate({
+    auth,
+    spreadsheetId,
+    resource: {
+      requests: [{
+        deleteDimension: {
+          range: {
+            sheetId: sheetId,
+            dimension: "ROWS",
+            startIndex: startPosition - 1,
+            endIndex: endPosition,
+          },
+        },
+      }],
     },
   });
 }

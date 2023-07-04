@@ -3,7 +3,10 @@ import * as express from "express";
 import * as cors from "cors";
 import bodyParser = require("body-parser");
 import {routeChapters} from "./route/data/data_chapters";
-import {routePurchaseOrder} from "./route/purchase/order/purchase_order";
+import {route as suppliersRoute} from "./route/data/suppliers";
+import {
+  route as orderPurchaseRoute,
+} from "./route/purchase/order/order_purchase_route";
 import {route as projectRoute} from "./route/project/project";
 import {route as userRoute} from "./route/user/user";
 
@@ -17,9 +20,10 @@ api.get("/", async (req, res) => {
   res.send("Not implemented!");
 });
 
+api.use("/data/chapters", routeChapters);
+api.use("/data/suppliers", suppliersRoute);
 api.use("/project", projectRoute);
 api.use("/user", userRoute);
-api.use("/data/chapters", routeChapters);
-api.use("/purchase/order", routePurchaseOrder);
+api.use("/purchase/order", orderPurchaseRoute);
 
 exports.api = functions.https.onRequest(api);
