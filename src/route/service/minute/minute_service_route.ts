@@ -1,11 +1,11 @@
 import {HEADER_KEYS} from "../../../util/network_util";
 import {
-  getAllOrderPurchase,
-  getByRangeOrderPurchase,
-  appendOrderPurchase,
-  deleteOrderPurchase,
-  approveOrderPurchase,
-} from "./order_purchase_controller";
+  getAll,
+  getByRange,
+  append,
+  deleteItem,
+  approve,
+} from "./minute_service_controller";
 
 import express = require("express");
 
@@ -26,7 +26,7 @@ route.use((_req: any, _res: any, next: () => void) => {
 route.get("/", async (req: any, res: any) => {
   try {
     const spreadsheetId = req.get(HEADER_KEYS.spreadsheetId);
-    const response = await getAllOrderPurchase(spreadsheetId);
+    const response = await getAll(spreadsheetId);
     res.status(200).send(response);
   } catch (error) {
     console.log(error);
@@ -45,7 +45,7 @@ route.get("/range", async (req: any, res: any) => {
     const endPosition = req.query.end;
 
     if (startPosition !== undefined && endPosition !== undefined) {
-      const response = await getByRangeOrderPurchase(
+      const response = await getByRange(
         spreadsheetId,
         startPosition,
         endPosition
@@ -74,7 +74,7 @@ route.put(
       const spreadsheetId = req.get(HEADER_KEYS.spreadsheetId);
       const payload = req.body.data;
 
-      const response = await appendOrderPurchase(spreadsheetId, payload);
+      const response = await append(spreadsheetId, payload);
       res.status(200).send(response);
     } catch (error) {
       console.log(error);
@@ -94,13 +94,13 @@ route.post(
       const spreadsheetId = req.get(HEADER_KEYS.spreadsheetId);
       const payload = req.body.data;
 
-      deleteOrderPurchase(
+      deleteItem(
         spreadsheetId,
         payload.startPosition,
         payload.endPosition
       );
 
-      const response = await appendOrderPurchase(spreadsheetId, payload.orderPurchase);
+      const response = await append(spreadsheetId, payload.minuteService);
       res.status(200).send(response);
     } catch (error) {
       console.log(error);
@@ -119,7 +119,7 @@ route.post(
     try {
       const spreadsheetId = req.get(HEADER_KEYS.spreadsheetId);
       const payload = req.body.data;
-      const response = await approveOrderPurchase(spreadsheetId, payload);
+      const response = await approve(spreadsheetId, payload);
       res.status(200).send(response);
     } catch (error) {
       console.log(error);
