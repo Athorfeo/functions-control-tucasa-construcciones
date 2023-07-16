@@ -100,7 +100,11 @@ route.post(
         payload.endPosition
       );
 
-      const response = await appendOrderPurchase(spreadsheetId, payload.orderPurchase);
+      const response = await appendOrderPurchase(
+        spreadsheetId,
+        payload.orderPurchase
+      );
+
       res.status(200).send(response);
     } catch (error) {
       console.log(error);

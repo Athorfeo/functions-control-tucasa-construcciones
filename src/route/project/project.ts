@@ -33,12 +33,12 @@ route.get("/", async (req: any, res: any) => {
 
   console.log(sheetQuery.data.values);
   const validateSpreadsheetId = (item: any) => {
-    if(item === undefined || item === "") {
+    if (item === undefined || item === "") {
       return "";
     } else {
-      return item
+      return item;
     }
-  }
+  };
 
   const projects = sheetQuery.data.values.map((item: any) => {
     return {

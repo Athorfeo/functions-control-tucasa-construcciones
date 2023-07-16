@@ -4,16 +4,18 @@
  */
 export function getDateFormatted(): string {
   const rawDate = new Date();
-  const year: String = `${rawDate.getFullYear()}`;
-  let month: String = "";
-  let day: String = "";
+  const year = `${rawDate.getFullYear()}`;
+  let month = "";
+  let day = "";
 
-  if( (rawDate.getMonth() + 1) < 10 ) {
+  if ( (rawDate.getMonth() + 1) < 10 ) {
     month = "0" + (rawDate.getMonth() + 1);
   }
 
-  if( rawDate.getDate() < 10 ) {
+  if ( rawDate.getDate() < 10 ) {
     day = "0" + rawDate.getDate();
+  } else {
+    day = `${rawDate.getDate()}`;
   }
 
   return `${year}-${(month)}-${day}`;

@@ -105,7 +105,7 @@ export async function append(
       product.photo,
       0,
       "",
-      0
+      0,
     ]);
   });
 
