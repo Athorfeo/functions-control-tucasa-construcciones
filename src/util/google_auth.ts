@@ -1,6 +1,7 @@
 import {google} from "googleapis";
 
 const SCOPES = [
+  "https://www.googleapis.com/auth/drive",
   "https://www.googleapis.com/auth/spreadsheets",
 ];
 const CREDENTIALS_PATH = "src/credentials.json";
@@ -21,3 +22,13 @@ function getGoogleAuth() {
  * @return Google Auth.
  */
 export const googleAuth = getGoogleAuth();
+
+/**
+ * Validate google response
+ * @param {any} response google response.
+ */
+export function validateGoogleResponse(response: any) {
+  if (response.status < 200 && response.status >= 300) {
+    throw Error("Google service status error: " + response.status);
+  }
+}

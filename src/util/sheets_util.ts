@@ -22,7 +22,7 @@ export function validateSheetResponse(response: any) {
  * @return {GoogleAuth<JSONClient>} GoogleAuth instance.
  */
 export function getSheetInstance() {
-  return google.sheets({version: "v4", auth: googleAuth});
+  return google.sheets({ version: "v4", auth: googleAuth });
 }
 
 /**
