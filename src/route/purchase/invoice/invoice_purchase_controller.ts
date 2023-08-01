@@ -6,17 +6,19 @@ import {
   getRawLastId,
   sheetsGet,
   sheetsAppend,
+  sheetUpdateRows,
   updateLastId,
 } from "../../../util/sheets_util";
 import {
   getDriveInstance,
   uploadFile,
+  deleteFile,
 } from "../../../util/drive_util";
 
 export const sheetName = "main";
 
 /**
- * Append invoice purchase.
+ * Update invoice purchase.
  * @param {any} spreadsheetId spreadsheetId value.
  * @param {any} payload payload value.
  */
@@ -106,6 +108,87 @@ export async function append(
   const response = {
     data: {
       id: id,
+    },
+  };
+
+  return response;
+}
+
+/**
+ * Update invoice purchase.
+ * @param {any} spreadsheetId spreadsheetId value.
+ * @param {any} payload payload value.
+ */
+export async function update(
+  spreadsheetId: string,
+  payload: any,
+): Promise<any> {
+  const invoice = payload.invoice;
+  const sheets = getSheetInstance();
+  const driveService = getDriveInstance();
+
+  const date = getDateFormatted();
+  const rows: any[][] = [];
+
+  await deleteFile(
+    driveService,
+    invoice.photoInvoice.fileId,
+  );
+
+  const photoFoldersResponse = await sheetsGet(
+    sheets,
+    googleAuth,
+    spreadsheetId,
+    sheetName + "!C1:D1", 
+  );
+
+  validateSheetResponse(photoFoldersResponse);
+
+  const invoiceFolderId = photoFoldersResponse.data.values[0][1];
+
+  const invoicePhotoFileExtension = invoice.photoInvoice.mimeType.split('/')[1];
+  const filenameInvoicePhoto = invoice.id + "-factura." + invoicePhotoFileExtension;
+
+  const photoInvoiceResponse = await uploadFile(
+    driveService,
+    invoiceFolderId,
+    filenameInvoicePhoto,
+    invoice.photoInvoice.mimeType,
+    invoice.photoInvoice.rawData,
+  );
+
+  rows.push([
+    invoice.id,
+    date,
+    invoice.invoiceDate,
+    invoice.observations,
+    invoice.typeInvoice,
+    invoice.provider,
+    invoice.paymentType,
+    invoice.invoiceNumber,
+    invoice.activityMaterial,
+    invoice.price,
+    invoice.quantity,
+    invoice.chapter,
+    photoInvoiceResponse.id,
+    invoice.withholdingTax,
+    invoice.iva,
+    invoice.photoAccountingSupport.fileId,
+  ]);
+
+  validateSheetResponse(
+    await sheetUpdateRows(
+      sheets,
+      googleAuth,
+      spreadsheetId,
+      sheetName + "!A" + payload.position + ":P",
+      rows,
+    )
+  );
+
+  const response = {
+    data: {
+      id: invoice.id,
     },
   };
 

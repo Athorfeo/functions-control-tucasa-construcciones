@@ -11,7 +11,7 @@ export function getDriveInstance() {
 }
 
 /**
- * Append a new row.
+ * Upload image.
  * @param {any} service Drive instance.
  * @param {any} folderId spreadsheetId value.
  * @param {string} filename range of sheet.
@@ -43,6 +43,24 @@ export async function uploadFile(
   const response = await service.files.create({
     resource: fileMetadata,
     media: media
+  });
+
+  validateGoogleResponse(response);
+
+  return response.data;
+}
+
+/**
+ * Delete file.
+ * @param {any} service Drive instance.
+ * @param {any} fileId file id.
+ */
+export async function deleteFile(
+  service: any,
+  fileId: string,
+): Promise<any> {
+  const response = await service.files.delete({
+    fileId: fileId
   });
 
   validateGoogleResponse(response);

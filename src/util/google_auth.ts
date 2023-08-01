@@ -2,6 +2,8 @@ import {google} from "googleapis";
 
 const SCOPES = [
   "https://www.googleapis.com/auth/drive",
+  "https://www.googleapis.com/auth/drive.appdata",
+  "https://www.googleapis.com/auth/drive.file",
   "https://www.googleapis.com/auth/spreadsheets",
 ];
 const CREDENTIALS_PATH = "src/credentials.json";
