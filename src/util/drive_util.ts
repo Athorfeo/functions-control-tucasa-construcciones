@@ -1,13 +1,16 @@
 import {google} from "googleapis";
 import {googleAuth, validateGoogleResponse} from "./google_auth";
-import {Readable} from 'stream';
+import {Readable} from "stream";
 
 /**
  * Get a Google Drive instance.
  * @return {drive_v3.Drive} GoogleAuth instance.
  */
 export function getDriveInstance() {
-  return google.drive({ version: "v3", auth: googleAuth });
+  return google.drive({
+    version: "v3",
+    auth: googleAuth,
+  });
 }
 
 /**
@@ -26,8 +29,8 @@ export async function uploadFile(
   mimeType: string,
   rawData: string,
 ): Promise<any> {
-  var rawFile = rawData.split(',')[1];
-  const buffer = Buffer.from(rawFile, 'base64');
+  const rawFile = rawData.split(",")[1];
+  const buffer = Buffer.from(rawFile, "base64");
   const readable = Readable.from(buffer);
 
   const fileMetadata = {
@@ -42,7 +45,7 @@ export async function uploadFile(
 
   const response = await service.files.create({
     resource: fileMetadata,
-    media: media
+    media: media,
   });
 
   validateGoogleResponse(response);
@@ -54,13 +57,38 @@ export async function uploadFile(
  * Delete file.
  * @param {any} service Drive instance.
  * @param {any} fileId file id.
+ * @return {any} result of execution.
  */
 export async function deleteFile(
   service: any,
   fileId: string,
 ): Promise<any> {
   const response = await service.files.delete({
-    fileId: fileId
+    fileId: fileId,
+  });
+
+  validateGoogleResponse(response);
+
+  return response.data;
+}
+
+/**
+ * Upload image.
+ * @param {any} service Drive instance.
+ * @param {any} fileId id of file.
+ * @param {string} filename new name of file.
+ * @return {any} return google response.
+ */
+export async function updateFilename(
+  service: any,
+  fileId: string,
+  filename: string,
+): Promise<any> {
+  const response = await service.files.update({
+    fileId: fileId,
+    requestBody: {
+      name: filename,
+    },
   });
 
   validateGoogleResponse(response);

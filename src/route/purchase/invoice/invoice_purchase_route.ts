@@ -1,7 +1,7 @@
 import {HEADER_KEYS} from "../../../util/network_util";
 import {
-  append, 
-  update, 
+  append,
+  update,
   addAccountingSupport,
   getAll,
   getByRange,
@@ -28,8 +28,6 @@ route.get(
   async (req: any, res: any) => {
     try {
       console.log("Purchase Invoice | Get all");
-      console.log(`RequestBody: ${JSON.stringify(req.body)}`);
-
       const spreadsheetId = req.get(HEADER_KEYS.spreadsheetId);
 
       const response = await getAll(
@@ -51,12 +49,14 @@ route.get(
 route.get("/range", async (req: any, res: any) => {
   try {
     const spreadsheetId = req.get(HEADER_KEYS.spreadsheetId);
-    const position = req.query.position;
+    const start = req.query.start;
+    const end = req.query.end;
 
-    if (position !== undefined) {
+    if (start !== undefined || end !== undefined) {
       const response = await getByRange(
         spreadsheetId,
-        position
+        start,
+        end
       );
       res.status(200).send(response);
     } else {
@@ -103,7 +103,7 @@ route.post(
   "/",
   async (req: any, res: any) => {
     try {
-      console.log("Purchase Invoice | Append row");
+      console.log("Purchase Invoice | Update");
       console.log(`RequestBody: ${JSON.stringify(req.body)}`);
 
       const spreadsheetId = req.get(HEADER_KEYS.spreadsheetId);
