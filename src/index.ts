@@ -8,6 +8,9 @@ import {route as contractorsRoute} from "./route/data/contractors";
 import {
   route as orderPurchaseRoute,
 } from "./route/purchase/order/order_purchase_route";
+import {
+  route as invoicePurchaseRoute,
+} from "./route/purchase/invoice/invoice_purchase_route";
 import {route as projectRoute} from "./route/project/project";
 import {route as userRoute} from "./route/user/user";
 import {
@@ -30,6 +33,7 @@ api.use("/data/contractors", contractorsRoute);
 api.use("/project", projectRoute);
 api.use("/user", userRoute);
 api.use("/purchase/order", orderPurchaseRoute);
+api.use("/purchase/invoice", invoicePurchaseRoute);
 api.use("/service/minute", minuteServiceRoute);
 
 exports.api = functions.https.onRequest(api);
