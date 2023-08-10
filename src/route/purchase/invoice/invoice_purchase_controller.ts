@@ -168,9 +168,20 @@ export async function append(
   validateSheetResponse(photoFoldersResponse);
 
   const invoiceFolderId = photoFoldersResponse.data.values[0][1];
-
   const invoicePhotoFileExtension = payload.photoInvoice.mimeType.split("/")[1];
-  const filenameInvoicePhoto = id + "-factura." + invoicePhotoFileExtension;
+
+  const filename = [];
+  filename.push(
+    id,
+    "-",
+    payload.provider,
+    "-",
+    "factura",
+    ".",
+    invoicePhotoFileExtension,
+  );
+
+  const filenameInvoicePhoto = filename.join("");
 
   const photoInvoiceResponse = await uploadFile(
     driveService,
@@ -311,7 +322,19 @@ export async function update(
     const invoiceFolderId = photoFoldersResponse.data.values[0][1];
     const mimeTypeFile = payload.photoInvoice.mimeType;
     const invoicePhotoFileExtension = mimeTypeFile.split("/")[1];
-    const filenameInvoicePhoto = id + "-factura." + invoicePhotoFileExtension;
+
+    const filename = [];
+    filename.push(
+      id,
+      "-",
+      payload.provider,
+      "-",
+      "factura",
+      ".",
+      invoicePhotoFileExtension,
+    );
+
+    const filenameInvoicePhoto = filename.join("");
 
     const photoInvoiceResponse = await uploadFile(
       driveService,
@@ -323,7 +346,15 @@ export async function update(
 
     fileId = photoInvoiceResponse.id;
   } else {
-    const filenameInvoicePhoto = id + "-factura";
+    const filename = [];
+    filename.push(
+      id,
+      "-",
+      payload.provider,
+      "-",
+      "factura"
+    );
+    const filenameInvoicePhoto = filename.join("");
     await updateFilename(
       driveService,
       payload.photoInvoice.fileId,
@@ -414,10 +445,20 @@ export async function addAccountingSupport(
   validateSheetResponse(folderResponse);
 
   const folderId = folderResponse.data.values[0][1];
-
   const fileExtension = invoice.photoAccountingSupport.mimeType.split("/")[1];
-  const filenameHint = "-factura-soporte-contable.";
-  const filenamePhoto = invoice.id + filenameHint + fileExtension;
+
+  const filename = [];
+  filename.push(
+    invoice.id,
+    "-",
+    invoice.provider,
+    "-",
+    "factura-soporte-contable",
+    ".",
+    fileExtension,
+  );
+
+  const filenamePhoto = filename.join("");
 
   const photoResponse = await uploadFile(
     driveService,
