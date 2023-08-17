@@ -2,6 +2,8 @@ import {google} from "googleapis";
 import {googleAuth, validateGoogleResponse} from "./google_auth";
 import {Readable} from "stream";
 
+export const DRIVE_URL_FILE_PATH = "https://drive.google.com/file/d/";
+
 /**
  * Get a Google Drive instance.
  * @return {drive_v3.Drive} GoogleAuth instance.
