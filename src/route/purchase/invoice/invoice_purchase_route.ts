@@ -130,7 +130,7 @@ route.put(
   "/accountingsupport",
   async (req: any, res: any) => {
     try {
-      console.log("Purchase Invoice | Append row");
+      console.log("Purchase Invoice | Accounting Support");
       console.log(`RequestBody: ${JSON.stringify(req.body)}`);
 
       const spreadsheetId = req.get(HEADER_KEYS.spreadsheetId);
