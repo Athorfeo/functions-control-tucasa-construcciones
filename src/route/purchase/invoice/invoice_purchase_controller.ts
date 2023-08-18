@@ -43,9 +43,10 @@ function parseData(
     });
   });
 
-  let photoAccountingSupportFileId = "";
-  if (values[0][15] != undefined) {
-    photoAccountingSupportFileId = values[0][15];
+  let accountingSupport = "";
+
+  if (values[0][15] != undefined){
+    accountingSupport = values[0][15];
   }
 
   const data = {
@@ -64,9 +65,7 @@ function parseData(
     },
     withholdingTax: values[0][9],
     iva: values[0][10],
-    photoAccountingSupport: {
-      fileId: photoAccountingSupportFileId,
-    },
+    accountingSupport: accountingSupport,
     items: items,
   };
 
@@ -389,7 +388,7 @@ export async function update(
       item.price,
       item.quantity,
       item.chapter,
-      payload.photoAccountingSupport.fileId,
+      payload.accountingSupport,
     ]);
   });
 
@@ -432,62 +431,10 @@ export async function addAccountingSupport(
   payload: any,
 ): Promise<any> {
   const sheets = getSheetInstance();
-  const driveService = getDriveInstance();
-
   const rows: any[][] = [];
 
-  if (
-    payload.photoAccountingSupport.fileId !== undefined &&
-    payload.photoAccountingSupport.fileId !== ""
-  ) {
-    console.log("Deleting accounting support file...");
-    const fileIdPayload = payload.photoAccountingSupport.fileId;
-    const photoUrlSplitted = fileIdPayload.split(DRIVE_URL_FILE_PATH);
-    const fileIdSplitted = photoUrlSplitted[1];
-    await deleteFile(
-      driveService,
-      fileIdSplitted,
-    );
-  }
-
-  const folderResponse = await sheetsGet(
-    sheets,
-    googleAuth,
-    spreadsheetId,
-    sheetName + "!E1:F1",
-  );
-
-  validateSheetResponse(folderResponse);
-
-  const folderId = folderResponse.data.values[0][1];
-  const fileExtension = payload.photoAccountingSupport.mimeType.split("/")[1];
-
-  const filename = [];
-  filename.push(
-    payload.id,
-    "-",
-    payload.provider,
-    "-",
-    "factura-soporte-contable",
-    ".",
-    fileExtension,
-  );
-
-  const filenamePhoto = filename.join("");
-
-  console.log("Uploading accounting support file...");
-  const photoResponse = await uploadFile(
-    driveService,
-    folderId,
-    filenamePhoto,
-    payload.photoAccountingSupport.mimeType,
-    payload.photoAccountingSupport.rawData,
-  );
-
-  const photoURL = DRIVE_URL_FILE_PATH + photoResponse.id;
-
   rows.push([
-    photoURL,
+    payload.accountingSupport,
   ]);
 
   validateSheetResponse(
