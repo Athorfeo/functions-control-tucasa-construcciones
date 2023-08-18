@@ -45,7 +45,7 @@ function parseData(
 
   let accountingSupport = "";
 
-  if (values[0][15] != undefined){
+  if (values[0][15] != undefined) {
     accountingSupport = values[0][15];
   }
 
