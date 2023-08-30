@@ -28,10 +28,10 @@ route.get("/", async (req: any, res: any) => {
     sheets,
     googleAuth,
     spreadsheetId,
-    sheetName + "!A3:R",
+    sheetName + "!A3:U",
   );
-
   console.log(sheetQuery.data.values);
+
   const validateSpreadsheetId = (item: any) => {
     if (item === undefined || item === "") {
       return "";
@@ -73,6 +73,11 @@ route.get("/", async (req: any, res: any) => {
       },
       aftersale: {
         aftersale: validateSpreadsheetId(item[17]),
+      },
+      reports: {
+        minute: validateSpreadsheetId(item[18]),
+        accountant: validateSpreadsheetId(item[19]),
+        patners: validateSpreadsheetId(item[20]),
       },
     };
   });
