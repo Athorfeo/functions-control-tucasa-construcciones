@@ -1,11 +1,11 @@
 import {HEADER_KEYS} from "../../../util/network_util";
 import {
-  append,
-  update,
-  addAccountingDocument,
   getAll,
   getByRange,
-} from "./invoice_purchase_controller";
+  append,
+  update,
+  updateAccountingDocument,
+} from "./pettycash_purchase_controller";
 
 import express = require("express");
 
@@ -27,7 +27,7 @@ route.get(
   "/",
   async (req: any, res: any) => {
     try {
-      console.log("Purchase Invoice | Get all");
+      console.log("Purchase Petty Cash | Get all");
       const spreadsheetId = req.get(HEADER_KEYS.spreadsheetId);
 
       const response = await getAll(
@@ -49,14 +49,12 @@ route.get(
 route.get("/range", async (req: any, res: any) => {
   try {
     const spreadsheetId = req.get(HEADER_KEYS.spreadsheetId);
-    const start = req.query.start;
-    const end = req.query.end;
+    const position = req.query.position;
 
-    if (start !== undefined || end !== undefined) {
+    if (position !== undefined) {
       const response = await getByRange(
         spreadsheetId,
-        start,
-        end
+        position
       );
       res.status(200).send(response);
     } else {
@@ -76,7 +74,7 @@ route.put(
   "/",
   async (req: any, res: any) => {
     try {
-      console.log("Purchase Invoice | Append row");
+      console.log("Purchase Petty Cash | Append row");
       console.log(`RequestBody: ${JSON.stringify(req.body)}`);
 
       const spreadsheetId = req.get(HEADER_KEYS.spreadsheetId);
@@ -126,17 +124,17 @@ route.post(
  * Add accounting support
  * Developed by Juan Ortiz
  */
-route.put(
+route.post(
   "/accountingdocument",
   async (req: any, res: any) => {
     try {
-      console.log("Purchase Invoice | Accounting Document");
+      console.log("Purchase Petty Cash | Accounting Document");
       console.log(`RequestBody: ${JSON.stringify(req.body)}`);
 
       const spreadsheetId = req.get(HEADER_KEYS.spreadsheetId);
       const payload = req.body.data;
 
-      const response = await addAccountingDocument(
+      const response = await updateAccountingDocument(
         spreadsheetId,
         payload
       );

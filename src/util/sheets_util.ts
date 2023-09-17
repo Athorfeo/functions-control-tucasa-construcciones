@@ -187,3 +187,19 @@ export async function deleteRowsSheet(
     },
   });
 }
+
+/**
+ * Delete rows from a Sheet.
+ * @param {any} range range of sheet value.
+ * @return {number} Range start position of sheet value.
+ */
+export function getRangeStartPosition(
+  range: string
+): number {
+  const rangeSplited = range.split(":");
+  return parseInt(
+    rangeSplited[0]
+      .split("!")[1]
+      .split(/[^\d]+/).join("")
+  );
+}

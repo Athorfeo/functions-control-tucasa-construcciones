@@ -8,7 +8,7 @@ import {
   sheetsAppend,
   sheetUpdateRows,
   updateLastId,
-  deleteRowsSheet,
+  getRangeStartPosition,
 } from "../../../util/sheets_util";
 import {
   DRIVE_URL_FILE_PATH,
@@ -22,51 +22,34 @@ export const sheetName = "main";
 
 /**
  * Parse data.
- * @param {any} startPosition start position of sheet value.
- * @param {any} endPosition end position of sheet value.
+ * @param {any} position position of sheet value.
  * @param {any} values values of sheet value.
  * @return {any} data parsed.
  */
-function parseData(
-  startPosition: number,
-  endPosition: number,
-  values: [any]
+function parseRow(
+  position: number,
+  values: any[]
 ): any {
-  const items: any[] = [];
+  let fileUrl = "";
+  let accountingDocument = "";
 
-  values.map((item: any, index: number) => {
-    items.push({
-      activityMaterial: item[11],
-      price: item[12],
-      quantity: item[13],
-      chapter: item[14],
-    });
-  });
+  if (values[5] != undefined) {
+    fileUrl = values[5];
+  }
 
-  let accountingSupport = "";
-
-  if (values[0][15] != undefined) {
-    accountingSupport = values[0][15];
+  if (values[6] != undefined) {
+    accountingDocument = values[6];
   }
 
   const data = {
-    startPosition: startPosition,
-    endPosition: endPosition,
-    id: values[0][0],
-    date: values[0][1],
-    invoiceDate: values[0][2],
-    observations: values[0][3],
-    typeInvoice: values[0][4],
-    provider: values[0][5],
-    paymentType: values[0][6],
-    invoiceNumber: values[0][7],
-    photoInvoice: {
-      fileId: values[0][8],
-    },
-    withholdingTax: values[0][9],
-    iva: values[0][10],
-    accountingSupport: accountingSupport,
-    items: items,
+    position: position,
+    id: values[0],
+    createdDate: values[1],
+    date: values[2],
+    bank: values[3],
+    amount: values[4],
+    fileUrl: fileUrl,
+    accountingDocument: accountingDocument,
   };
 
   return data;
@@ -84,13 +67,22 @@ export async function getAll(
     sheets,
     googleAuth,
     spreadsheetId,
-    sheetName + "!A3:H",
+    sheetName + "!A3:G",
   );
 
   validateSheetResponse(sheetResponse);
 
+  const rows: any[][] = [];
+
+  if (sheetResponse.data.values != undefined) {
+    const rangeStartPosition = getRangeStartPosition(sheetResponse.data.range);
+    sheetResponse.data.values.forEach((item: any, index: number) => {
+      rows.push(parseRow(rangeStartPosition + index, item));
+    });
+  }
+
   const response = {
-    data: sheetResponse.data,
+    data: rows,
   };
 
   return response;
@@ -99,16 +91,14 @@ export async function getAll(
 /**
  * Get by range.
  * @param {any} spreadsheetId spreadsheetId value.
- * @param {string} start position of sheet.
- * @param {string} end position of sheet.
+ * @param {string} position position of sheet.
  */
 export async function getByRange(
   spreadsheetId: string,
-  start: string,
-  end: string,
+  position: string,
 ): Promise<any> {
   const sheets = getSheetInstance();
-  const range = sheetName + "!A" + start + ":P" + end;
+  const range = sheetName + "!A" + position + ":G" + position;
   const sheetResponse = await sheetsGet(
     sheets,
     googleAuth,
@@ -118,10 +108,9 @@ export async function getByRange(
 
   validateSheetResponse(sheetResponse);
 
-  const data = parseData(
-    parseInt(start),
-    parseInt(end),
-    sheetResponse.data.values,
+  const data = parseRow(
+    parseInt(position),
+    sheetResponse.data.values[0],
   );
 
   const response = {
@@ -130,6 +119,7 @@ export async function getByRange(
 
   return response;
 }
+
 
 /**
  * Update invoice purchase.
@@ -144,7 +134,7 @@ export async function append(
   const driveService = getDriveInstance();
 
   let id = 0;
-  const date = getDateFormatted();
+  const createdDate = getDateFormatted();
   const rows: any[][] = [];
 
   const rawLastId = await getRawLastId(
@@ -168,13 +158,13 @@ export async function append(
   validateSheetResponse(photoFoldersResponse);
 
   const invoiceFolderId = photoFoldersResponse.data.values[0][1];
-  const invoicePhotoFileExtension = payload.photoInvoice.mimeType.split("/")[1];
+  const invoicePhotoFileExtension = payload.photo.mimeType.split("/")[1];
 
   const filename = [];
   filename.push(
     id,
     "-",
-    payload.provider,
+    payload.date,
     "-",
     "factura",
     ".",
@@ -187,39 +177,28 @@ export async function append(
     driveService,
     invoiceFolderId,
     filenameInvoicePhoto,
-    payload.photoInvoice.mimeType,
-    payload.photoInvoice.rawData,
+    payload.photo.mimeType,
+    payload.photo.rawData,
   );
 
   const photoURL = DRIVE_URL_FILE_PATH + photoInvoiceResponse.id;
 
-  payload.items.forEach((item: any) => {
-    rows.push([
-      id,
-      date,
-      payload.invoiceDate,
-      payload.observations,
-      payload.typeInvoice,
-      payload.provider,
-      payload.paymentType,
-      payload.invoiceNumber,
-      photoURL,
-      payload.withholdingTax,
-      payload.iva,
-      item.activityMaterial,
-      item.price,
-      item.quantity,
-      item.chapter,
-      "",
-    ]);
-  });
+  rows.push([
+    id,
+    createdDate,
+    payload.date,
+    payload.bank,
+    payload.amount,
+    photoURL,
+    "",
+  ]);
 
   validateSheetResponse(
     await sheetsAppend(
       sheets,
       googleAuth,
       spreadsheetId,
-      sheetName + "!A3:P",
+      sheetName + "!A3:G",
       rows,
     )
   );
@@ -241,30 +220,6 @@ export async function append(
   };
 
   return response;
-}
-
-/**
- * Append order purchase.
- * @param {any} spreadsheetId spreadsheetId value.
- * @param {string} startPosition startPosition of sheet.
- * @param {string} endPosition endPosition of sheet.
- */
-export async function deleteInvoice(
-  spreadsheetId: string,
-  startPosition: number,
-  endPosition: number,
-): Promise<any> {
-  const sheets = getSheetInstance();
-  const sheetResponse = await deleteRowsSheet(
-    sheets,
-    googleAuth,
-    spreadsheetId,
-    0,
-    startPosition,
-    endPosition,
-  );
-
-  validateSheetResponse(sheetResponse);
 }
 
 /**
@@ -278,30 +233,10 @@ export async function update(
 ): Promise<any> {
   const sheets = getSheetInstance();
   const driveService = getDriveInstance();
-
-  // Delete rows
-  deleteInvoice(
-    spreadsheetId,
-    payload.startPosition,
-    payload.endPosition,
-  );
-
-  let id = 0;
-  const date = getDateFormatted();
+  const createdDate = getDateFormatted();
   const rows: any[][] = [];
-
-  const rawLastId = await getRawLastId(
-    sheets,
-    googleAuth,
-    spreadsheetId,
-    sheetName + "!B1",
-  );
-
-  if (rawLastId >= 0) {
-    id = rawLastId + 1;
-  }
-
   let fileId = "";
+
   const photoFoldersResponse = await sheetsGet(
     sheets,
     googleAuth,
@@ -311,29 +246,29 @@ export async function update(
 
   validateSheetResponse(photoFoldersResponse);
 
-  const fileIdPayload = payload.photoInvoice.fileId;
-  const photoUrlSplitted = fileIdPayload.split(DRIVE_URL_FILE_PATH);
-  const fileIdSplitted = photoUrlSplitted[1];
+  const fileUrl = payload.photo.fileUrl;
+  const photoUrlSplitted = fileUrl.split(DRIVE_URL_FILE_PATH);
+  fileId = photoUrlSplitted[1];
 
   if (
-    payload.photoInvoice.mimeType != undefined &&
-    payload.photoInvoice.rawData != undefined
+    payload.photo.mimeType != undefined &&
+    payload.photo.rawData != undefined
   ) {
     // Delete image
     await deleteFile(
       driveService,
-      fileIdSplitted,
+      fileId,
     );
 
     const invoiceFolderId = photoFoldersResponse.data.values[0][1];
-    const mimeTypeFile = payload.photoInvoice.mimeType;
+    const mimeTypeFile = payload.photo.mimeType;
     const invoicePhotoFileExtension = mimeTypeFile.split("/")[1];
 
     const filename = [];
     filename.push(
-      id,
+      payload.id,
       "-",
-      payload.provider,
+      payload.date,
       "-",
       "factura",
       ".",
@@ -346,75 +281,52 @@ export async function update(
       driveService,
       invoiceFolderId,
       filenameInvoicePhoto,
-      payload.photoInvoice.mimeType,
-      payload.photoInvoice.rawData,
+      payload.photo.mimeType,
+      payload.photo.rawData,
     );
 
     fileId = photoInvoiceResponse.id;
   } else {
     const filename = [];
     filename.push(
-      id,
+      payload.id,
       "-",
-      payload.provider,
+      payload.date,
       "-",
       "factura"
     );
     const filenameInvoicePhoto = filename.join("");
     await updateFilename(
       driveService,
-      fileIdSplitted,
+      fileId,
       filenameInvoicePhoto,
     );
-    fileId = fileIdSplitted;
   }
 
   const photoURL = DRIVE_URL_FILE_PATH + fileId;
 
-  payload.items.forEach((item: any) => {
-    rows.push([
-      id,
-      date,
-      payload.invoiceDate,
-      payload.observations,
-      payload.typeInvoice,
-      payload.provider,
-      payload.paymentType,
-      payload.invoiceNumber,
-      photoURL,
-      payload.withholdingTax,
-      payload.iva,
-      item.activityMaterial,
-      item.price,
-      item.quantity,
-      item.chapter,
-      payload.accountingSupport,
-    ]);
-  });
+  rows.push([
+    payload.id,
+    createdDate,
+    payload.date,
+    payload.bank,
+    payload.amount,
+    photoURL,
+    payload.accountingDocument,
+  ]);
 
   validateSheetResponse(
-    await sheetsAppend(
+    await sheetUpdateRows(
       sheets,
       googleAuth,
       spreadsheetId,
-      sheetName + "!A3:P",
+      sheetName + "!A" + payload.position + ":G" + payload.position,
       rows,
     )
   );
-
-  validateSheetResponse(
-    await updateLastId(
-      sheets,
-      googleAuth,
-      spreadsheetId,
-      sheetName + "!B1",
-      id,
-    )
-  );
-
   const response = {
     data: {
-      id: id,
+      id: payload.id,
     },
   };
 
@@ -426,7 +338,7 @@ export async function update(
  * @param {any} spreadsheetId spreadsheetId value.
  * @param {any} payload payload value.
  */
-export async function addAccountingDocument(
+export async function updateAccountingDocument(
   spreadsheetId: string,
   payload: any,
 ): Promise<any> {
@@ -442,7 +354,7 @@ export async function addAccountingDocument(
       sheets,
       googleAuth,
       spreadsheetId,
-      sheetName + "!P" + payload.startPosition + ":P" + payload.endPosition,
+      sheetName + "!G" + payload.position + ":G" + payload.position,
       rows,
     )
   );
