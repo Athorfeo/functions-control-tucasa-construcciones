@@ -8,6 +8,7 @@ import {
   sheetsAppend,
   sheetUpdateRows,
   updateLastId,
+  getRangeStartPosition,
 } from "../../../util/sheets_util";
 import {
   DRIVE_URL_FILE_PATH,
@@ -73,14 +74,13 @@ export async function getAll(
 
   const rows: any[][] = [];
 
-  if(sheetResponse.data.values != undefined) {
-    const rangeSplited = sheetResponse.data.range.split(':');
-    const rangeStartPosition = parseInt(rangeSplited[0].split('!')[1].split(/[^\d]+/).join(""));
+  if (sheetResponse.data.values != undefined) {
+    const rangeStartPosition = getRangeStartPosition(sheetResponse.data.range);
     sheetResponse.data.values.forEach((item: any, index: number) => {
       rows.push(parseRow(rangeStartPosition + index, item));
     });
   }
-  
+
   const response = {
     data: rows,
   };
@@ -301,7 +301,6 @@ export async function update(
       fileId,
       filenameInvoicePhoto,
     );
-    fileId = fileId;
   }
 
   const photoURL = DRIVE_URL_FILE_PATH + fileId;
