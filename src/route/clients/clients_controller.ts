@@ -56,70 +56,46 @@ function parseRow(
 }
 
 /**
- * Get all order purchase.
- * @param {any} spreadsheetId spreadsheetId value.
+ * Parse data Households.
+ * @param {any} position position of sheet value.
+ * @param {any} values values of sheet value.
+ * @return {any} data parsed.
  */
-export async function getAll(
-  spreadsheetId: string,
-): Promise<any> {
-  const sheets = getSheetInstance();
-  const sheetResponse = await sheetsGet(
-    sheets,
-    googleAuth,
-    spreadsheetId,
-    sheetName + "!A3:H",
-  );
-
-  validateSheetResponse(sheetResponse);
-
-  const rows: any[][] = [];
-
-  if (sheetResponse.data.values != undefined) {
-    const rangeStartPosition = getRangeStartPosition(sheetResponse.data.range);
-    sheetResponse.data.values.forEach((item: any, index: number) => {
-      rows.push(parseRow(rangeStartPosition + index, item));
-    });
+function parseRowHouseholds(
+  position: number,
+  values: any[]
+): any {
+  let promiseFileUrl= "";
+  if (values[7] != undefined) {
+    promiseFileUrl = values[7];
+  }
+  
+  let invoiceFileUrl= "";
+  if (values[8] != undefined) {
+    invoiceFileUrl = values[8];
   }
 
-  const response = {
-    data: rows,
+  let minuteFileUrl= "";
+  if (values[9] != undefined) {
+    minuteFileUrl = values[9];
+  }
+
+  const row = {
+    position: position,
+    id: values[0],
+    createdDate: values[1],
+    document: values[2],
+    numberHousehold: values[3],
+    value: values[4],
+    initialFee: values[5],
+    Balance: values[6],
+    promiseFileUrl: promiseFileUrl,
+    invoiceFileUrl: invoiceFileUrl,
+    minuteFileUrl: minuteFileUrl
   };
 
-  return response;
+  return row;
 }
-
-/**
- * Get by range.
- * @param {any} spreadsheetId spreadsheetId value.
- * @param {string} position position of sheet.
- */
-export async function getByRange(
-  spreadsheetId: string,
-  position: string,
-): Promise<any> {
-  const sheets = getSheetInstance();
-  const range = sheetName + "!A" + position + ":H" + position;
-  const sheetResponse = await sheetsGet(
-    sheets,
-    googleAuth,
-    spreadsheetId,
-    range,
-  );
-
-  validateSheetResponse(sheetResponse);
-
-  const data = parseRow(
-    parseInt(position),
-    sheetResponse.data.values[0],
-  );
-
-  const response = {
-    data: data,
-  };
-
-  return response;
-}
-
 /**
  * Upload rut file.
  * @param {any} document of rut owner.
@@ -196,6 +172,98 @@ export async function uploadDocumentFile(
   const fileUrl = DRIVE_URL_FILE_PATH + uploadFileResponse.id;
 
   return fileUrl;
+}
+
+/**
+ * Get all order purchase.
+ * @param {any} spreadsheetId spreadsheetId value.
+ */
+export async function getAll(
+  spreadsheetId: string,
+): Promise<any> {
+  const sheets = getSheetInstance();
+  const sheetResponse = await sheetsGet(
+    sheets,
+    googleAuth,
+    spreadsheetId,
+    sheetName + "!A3:H",
+  );
+
+  validateSheetResponse(sheetResponse);
+
+  const rows: any[][] = [];
+
+  if (sheetResponse.data.values != undefined) {
+    const rangeStartPosition = getRangeStartPosition(sheetResponse.data.range);
+    sheetResponse.data.values.forEach((item: any, index: number) => {
+      rows.push(parseRow(rangeStartPosition + index, item));
+    });
+  }
+
+  const response = {
+    data: rows,
+  };
+
+  return response;
+}
+
+/**
+ * Get by range.
+ * @param {any} spreadsheetId spreadsheetId value.
+ * @param {string} position position of sheet.
+ */
+export async function getByRange(
+  spreadsheetId: string,
+  position: string,
+): Promise<any> {
+  const sheets = getSheetInstance();
+  const range = sheetName + "!A" + position + ":H" + position;
+  const sheetResponse = await sheetsGet(
+    sheets,
+    googleAuth,
+    spreadsheetId,
+    range,
+  );
+
+  validateSheetResponse(sheetResponse);
+
+  const data = parseRow(
+    parseInt(position),
+    sheetResponse.data.values[0],
+  );
+
+  // Get households
+  const rangeHouseholds = "viviendas!A3:J";
+  const sheetResponseHouseholds = await sheetsGet(
+    sheets,
+    googleAuth,
+    spreadsheetId,
+    rangeHouseholds,
+  );
+
+  const rangeResponseHouseholds = sheetResponse.data.range;
+  const startPositionHouseholds = getRangeStartPosition(rangeResponseHouseholds);
+
+  const rowsHouseholds: any[][] = [];
+
+  sheetResponseHouseholds.data.values.forEach((item: any, index: number) => {
+    if(data.document === item[2]) {
+      rowsHouseholds.push(parseRowHouseholds(
+        startPositionHouseholds + index,
+        item
+      ));
+    }
+  });
+
+  data.households = rowsHouseholds;
+
+  console.log(`Data: ${JSON.stringify(data)}`);
+
+  const response = {
+    data: data,
+  };
+
+  return response;
 }
 
 /**
