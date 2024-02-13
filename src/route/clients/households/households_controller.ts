@@ -10,149 +10,19 @@ import {
   updateLastId
 } from "../../../util/sheets_util";
 import {
-  DRIVE_URL_FILE_PATH,
-  getDriveInstance,
-  uploadFile,
-  deleteFile,
-} from "../../../util/drive_util";
+  uploadPromiseFile,
+  updatePromiseFile,
+} from "./households_promise_file_controller";
+import {
+  uploadInvoiceFile,
+  updateInvoiceFile,
+} from "./households_invoice_file_controller";
+import {
+  uploadCertificateFile,
+  updateCertificateFile,
+} from "./households_certificate_file_controller";
 
 export const sheetName = "viviendas";
-
-/**
- * Upload rut file.
- * @param {any} document of rut owner.
- * @param {any} folderId folder id.
- * @param {any} mimeType mimeType file.
- * @param {any} rawData mimeType file.
- */
-export async function uploadFileController(
-  filename: string,
-  folderId: string,
-  mimeType: string,
-  rawData: string,
-): Promise<any> {
-  const driveService = getDriveInstance();
-
-  const uploadFileResponse = await uploadFile(
-    driveService,
-    folderId,
-    filename,
-    mimeType,
-    rawData,
-  );
-
-  const fileUrl = DRIVE_URL_FILE_PATH + uploadFileResponse.id;
-
-  return fileUrl;
-}
-
-/**
- * Upload promise file.
- * @param {any} document of rut owner.
- * @param {any} folderId folder id.
- * @param {any} mimeType mimeType file.
- * @param {any} rawData mimeType file.
- */
-export async function uploadPromiseFile(
-  document: string,
-  numberHousehold: string,
-  folderId: string,
-  mimeType: string,
-  rawData: string,
-): Promise<any> {
-  const fileExtension = mimeType.split("/")[1];
-
-  const filenameBuilder = [];
-  filenameBuilder.push(
-    "promise",
-    "-",
-    numberHousehold,
-    "-",
-    document,
-    ".",
-    fileExtension,
-  );
-  const filename = filenameBuilder.join("");
-
-  return uploadFileController(
-    filename,
-    folderId,
-    mimeType,
-    rawData
-  );
-}
-
-/**
- * Upload invoice file.
- * @param {any} document of rut owner.
- * @param {any} folderId folder id.
- * @param {any} mimeType mimeType file.
- * @param {any} rawData mimeType file.
- */
-export async function uploadInvoiceFile(
-  document: string,
-  numberHousehold: string,
-  folderId: string,
-  mimeType: string,
-  rawData: string,
-): Promise<any> {
-  const fileExtension = mimeType.split("/")[1];
-
-  const filenameBuilder = [];
-  filenameBuilder.push(
-    "invoice",
-    "-",
-    numberHousehold,
-    "-",
-    document,
-    ".",
-    fileExtension,
-  );
-  const filename = filenameBuilder.join("");
-
-  return uploadFileController(
-    filename,
-    folderId,
-    mimeType,
-    rawData
-  );
-}
-
-/**
- * Upload minute file.
- * @param {any} document of rut owner.
- * @param {any} folderId folder id.
- * @param {any} mimeType mimeType file.
- * @param {any} rawData mimeType file.
- */
-export async function uploadMinuteFile(
-  document: string,
-  numberHousehold: string,
-  folderId: string,
-  mimeType: string,
-  rawData: string,
-): Promise<any> {
-  const fileExtension = mimeType.split("/")[1];
-
-  const filenameBuilder = [];
-  filenameBuilder.push(
-    "minute",
-    "-",
-    numberHousehold,
-    "-",
-    document,
-    ".",
-    fileExtension,
-  );
-  const filename = filenameBuilder.join("");
-
-  return uploadFileController(
-    filename,
-    folderId,
-    mimeType,
-    rawData
-  );
-}
 
 /**
  * Append household.
@@ -191,30 +61,21 @@ export async function appendHousehold(
 
   const promiseFolderId = foldersIdResponse.data.values[0][1];
   const invoiceFolderId = foldersIdResponse.data.values[0][3];
-  const minuteFolderId = foldersIdResponse.data.values[0][5];
+  const certificateFolderId = foldersIdResponse.data.values[0][5];
 
   const promiseFileUrl = await uploadPromiseFile(
-    payload.document,
-    payload.numberHousehold,
-    promiseFolderId,
-    payload.promiseFile.mimeType,
-    payload.promiseFile.rawData,
+    payload,
+    promiseFolderId
   );
 
   const invoiceFileUrl = await uploadInvoiceFile(
-    payload.document,
-    payload.numberHousehold,
-    invoiceFolderId,
-    payload.invoiceFile.mimeType,
-    payload.invoiceFile.rawData,
+    payload,
+    invoiceFolderId
   );
 
-  const minuteFileUrl = await uploadMinuteFile(
-    payload.document,
-    payload.numberHousehold,
-    minuteFolderId,
-    payload.minuteFile.mimeType,
-    payload.minuteFile.rawData,
+  const certificateFileUrl = await uploadCertificateFile(
+    payload,
+    certificateFolderId
   );
 
   rows.push([
@@ -227,7 +88,7 @@ export async function appendHousehold(
     payload.balance,
     promiseFileUrl,
     invoiceFileUrl,
-    minuteFileUrl,
+    certificateFileUrl,
   ]);
 
   validateSheetResponse(
@@ -269,7 +130,6 @@ export async function updateHousehold(
   payload: any,
 ): Promise<any> {
   const sheets = getSheetInstance();
-  const driveService = getDriveInstance();
   const createdDate = getDateFormatted();
   const rows: any[][] = [];
 
@@ -282,87 +142,26 @@ export async function updateHousehold(
 
   validateSheetResponse(foldersIdResponse);
   
-  // Update primiseFile
-  let promiseFileUrl = "";
-  if (
-    payload.promiseFile.mimeType != undefined &&
-    payload.promiseFile.rawData != undefined
-  ) {
-    const promisePayloadFileUrl = payload.promiseFile.fileUrl;
-    const promiseFileId = promisePayloadFileUrl.split(DRIVE_URL_FILE_PATH)[1];
+  // Update promise file
+  const promiseFolderId = foldersIdResponse.data.values[0][1];
+  let promiseFileUrl = await updatePromiseFile(
+    payload,
+    promiseFolderId
+  );
 
-    // Delete image
-    await deleteFile(
-      driveService,
-      promiseFileId,
-    );
-
-    const promiseFolderId = foldersIdResponse.data.values[0][1];
-    promiseFileUrl = await uploadPromiseFile(
-      payload.document,
-      payload.numberHousehold,
-      promiseFolderId,
-      payload.promiseFile.mimeType,
-      payload.promiseFile.rawData,
-    );
-  } else {
-    promiseFileUrl = payload.promiseFile.fileUrl;
-  }
-
-  
   // Update invoice file
-  let invoiceFileUrl = "";
-  if (
-    payload.invoiceFile.mimeType != undefined &&
-    payload.invoiceFile.rawData != undefined
-  ) {
-    const invoicePayloadFileUrl = payload.invoiceFile.fileUrl;
-    const invoiceFileId = invoicePayloadFileUrl.split(DRIVE_URL_FILE_PATH)[1];
-
-    // Delete image
-    await deleteFile(
-      driveService,
-      invoiceFileId,
-    );
-
-    const invoiceFolderId = foldersIdResponse.data.values[0][3];
-    invoiceFileUrl = await uploadInvoiceFile(
-      payload.document,
-      payload.numberHousehold,
-      invoiceFolderId,
-      payload.invoiceFile.mimeType,
-      payload.invoiceFile.rawData,
-    );
-  } else {
-    invoiceFileUrl = payload.invoiceFile.fileUrl;
-  }
-
-  // Update minute file
-  let minuteFileUrl = "";
-  if (
-    payload.minuteFile.mimeType != undefined &&
-    payload.minuteFile.rawData != undefined
-  ) {
-    const minutePayloadFileUrl = payload.minuteFile.fileUrl;
-    const minuteFileId = minutePayloadFileUrl.split(DRIVE_URL_FILE_PATH)[1];
-
-    // Delete image
-    await deleteFile(
-      driveService,
-      minuteFileId,
-    );
-
-    const minuteFolderId = foldersIdResponse.data.values[0][5];
-    minuteFileUrl = await uploadMinuteFile(
-      payload.document,
-      payload.numberHousehold,
-      minuteFolderId,
-      payload.minuteFile.mimeType,
-      payload.minuteFile.rawData,
-    );
-  } else {
-    minuteFileUrl = payload.minuteFile.fileUrl;
-  }
+  const invoiceFolderId = foldersIdResponse.data.values[0][3];
+  let invoiceFileUrl = await updateInvoiceFile(
+    payload,
+    invoiceFolderId
+  );
+  
+  // Update certificate file
+  const certificateFolderId = foldersIdResponse.data.values[0][5];
+  let certificateFileUrl = await updateCertificateFile(
+    payload,
+    certificateFolderId
+  );
 
   rows.push([
     payload.id,
@@ -374,7 +173,7 @@ export async function updateHousehold(
     payload.balance,
     promiseFileUrl,
     invoiceFileUrl,
-    minuteFileUrl,
+    certificateFileUrl,
   ]);
 
   validateSheetResponse(

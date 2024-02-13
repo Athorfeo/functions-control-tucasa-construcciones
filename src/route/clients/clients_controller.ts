@@ -11,168 +11,18 @@ import {
   getRangeStartPosition,
 } from "../../util/sheets_util";
 import {
-  DRIVE_URL_FILE_PATH,
-  getDriveInstance,
-  uploadFile,
-  deleteFile,
-} from "../../util/drive_util";
+  uploadRutFile,
+  updateRutFile,
+  uploadDocumentFile,
+  updateDocumentFile,
+} from "./clients_file_controller";
+import {
+  parseClientRow,
+  parseHouseholdsRow,
+  parsePaymentsRow,
+} from "./clients_data_controller";
 
 export const sheetName = "main";
-
-/**
- * Parse data.
- * @param {any} position position of sheet value.
- * @param {any} values values of sheet value.
- * @return {any} data parsed.
- */
-function parseRow(
-  position: number,
-  values: any[]
-): any {
-  let rutFileUrl= "";
-  let documentFileUrl = "";
-
-  if (values[6] != undefined) {
-    rutFileUrl = values[6];
-  }
-
-  if (values[7] != undefined) {
-    documentFileUrl = values[7];
-  }
-
-  const data = {
-    position: position,
-    id: values[0],
-    createdDate: values[1],
-    document: values[2],
-    name: values[3],
-    address: values[4],
-    email: values[5],
-    rutFileUrl: rutFileUrl,
-    documentFileUrl: documentFileUrl,
-  };
-
-  return data;
-}
-
-/**
- * Parse data Households.
- * @param {any} position position of sheet value.
- * @param {any} values values of sheet value.
- * @return {any} data parsed.
- */
-function parseRowHouseholds(
-  position: number,
-  values: any[]
-): any {
-  let promiseFileUrl= "";
-  if (values[7] != undefined) {
-    promiseFileUrl = values[7];
-  }
-  
-  let invoiceFileUrl= "";
-  if (values[8] != undefined) {
-    invoiceFileUrl = values[8];
-  }
-
-  let minuteFileUrl= "";
-  if (values[9] != undefined) {
-    minuteFileUrl = values[9];
-  }
-
-  const row = {
-    position: position,
-    id: values[0],
-    createdDate: values[1],
-    document: values[2],
-    numberHousehold: values[3],
-    value: values[4],
-    initialFee: values[5],
-    Balance: values[6],
-    promiseFileUrl: promiseFileUrl,
-    invoiceFileUrl: invoiceFileUrl,
-    minuteFileUrl: minuteFileUrl
-  };
-
-  return row;
-}
-/**
- * Upload rut file.
- * @param {any} document of rut owner.
- * @param {any} folderId folder id.
- * @param {any} mimeType mimeType file.
- * @param {any} rawData mimeType file.
- */
-export async function uploadRutFile(
-  document: string,
-  folderId: string,
-  mimeType: string,
-  rawData: string,
-): Promise<any> {
-  const driveService = getDriveInstance();
-  const rutFileExtension = mimeType.split("/")[1];
-
-  const filenameBuilder = [];
-  filenameBuilder.push(
-    "rut",
-    "-",
-    document,
-    ".",
-    rutFileExtension,
-  );
-  const rutFilename = filenameBuilder.join("");
-
-  const uploadFileResponse = await uploadFile(
-    driveService,
-    folderId,
-    rutFilename,
-    mimeType,
-    rawData,
-  );
-
-  const fileUrl = DRIVE_URL_FILE_PATH + uploadFileResponse.id;
-
-  return fileUrl;
-}
-
-/**
- * Upload rut file.
- * @param {any} document of rut owner.
- * @param {any} folderId folder id.
- * @param {any} mimeType mimeType file.
- * @param {any} rawData mimeType file.
- */
-export async function uploadDocumentFile(
-  document: string,
-  folderId: string,
-  mimeType: string,
-  rawData: string,
-): Promise<any> {
-  const driveService = getDriveInstance();
-  const rutFileExtension = mimeType.split("/")[1];
-
-  const filenameBuilder = [];
-  filenameBuilder.push(
-    "document",
-    "-",
-    document,
-    ".",
-    rutFileExtension,
-  );
-  const rutFilename = filenameBuilder.join("");
-
-  const uploadFileResponse = await uploadFile(
-    driveService,
-    folderId,
-    rutFilename,
-    mimeType,
-    rawData,
-  );
-
-  const fileUrl = DRIVE_URL_FILE_PATH + uploadFileResponse.id;
-
-  return fileUrl;
-}
 
 /**
  * Get all order purchase.
@@ -196,7 +46,7 @@ export async function getAll(
   if (sheetResponse.data.values != undefined) {
     const rangeStartPosition = getRangeStartPosition(sheetResponse.data.range);
     sheetResponse.data.values.forEach((item: any, index: number) => {
-      rows.push(parseRow(rangeStartPosition + index, item));
+      rows.push(parseClientRow(rangeStartPosition + index, item));
     });
   }
 
@@ -227,7 +77,7 @@ export async function getByRange(
 
   validateSheetResponse(sheetResponse);
 
-  const data = parseRow(
+  const data = parseClientRow(
     parseInt(position),
     sheetResponse.data.values[0],
   );
@@ -248,7 +98,7 @@ export async function getByRange(
 
   sheetResponseHouseholds.data.values.forEach((item: any, index: number) => {
     if(data.document === item[2]) {
-      rowsHouseholds.push(parseRowHouseholds(
+      rowsHouseholds.push(parseHouseholdsRow(
         startPositionHouseholds + index,
         item
       ));
@@ -256,6 +106,31 @@ export async function getByRange(
   });
 
   data.households = rowsHouseholds;
+
+  // Get payments
+  const rangePayments = "pagos!A3:I";
+  const sheetResponsePayments = await sheetsGet(
+    sheets,
+    googleAuth,
+    spreadsheetId,
+    rangePayments,
+  );
+
+  const rangeResponsePayments = sheetResponse.data.range;
+  const startPositionPayments = getRangeStartPosition(rangeResponsePayments);
+
+  const rowsPayments: any[][] = [];
+
+  sheetResponsePayments.data.values.forEach((item: any, index: number) => {
+    if(data.document === item[3]) {
+      rowsPayments.push(parsePaymentsRow(
+        startPositionPayments + index,
+        item
+      ));
+    }
+  });
+
+  data.payments = rowsPayments;
 
   console.log(`Data: ${JSON.stringify(data)}`);
 
@@ -359,7 +234,7 @@ export async function append(
 }
 
 /**
- * Update invoice purchase.
+ * Update client.
  * @param {any} spreadsheetId spreadsheetId value.
  * @param {any} payload payload value.
  */
@@ -368,7 +243,6 @@ export async function update(
   payload: any,
 ): Promise<any> {
   const sheets = getSheetInstance();
-  const driveService = getDriveInstance();
   const createdDate = getDateFormatted();
   const rows: any[][] = [];
 
@@ -380,59 +254,18 @@ export async function update(
   );
 
   validateSheetResponse(foldersIdResponse);
-  
-  // Update rutFile
-  let rutFileUrl = "";
-  if (
-    payload.rutFile.mimeType != undefined &&
-    payload.rutFile.rawData != undefined
-  ) {
-    const rutPayloadFileUrl = payload.rutFile.fileUrl;
-    const rutFileId = rutPayloadFileUrl.split(DRIVE_URL_FILE_PATH)[1];
 
-    // Delete image
-    await deleteFile(
-      driveService,
-      rutFileId,
-    );
+  // Update rut file
+  const rutFileUrl = await updateRutFile(
+    payload,
+    foldersIdResponse.data.values[0][1]
+  );
 
-    const rutFolderId = foldersIdResponse.data.values[0][1];
-    rutFileUrl = await uploadRutFile(
-      payload.document,
-      rutFolderId,
-      payload.rutFile.mimeType,
-      payload.rutFile.rawData,
-    );
-  } else {
-    rutFileUrl = payload.rutFile.fileUrl;
-  }
-
-  
-  // Update Document File
-  let documentFileUrl = "";
-  if (
-    payload.documentFile.mimeType != undefined &&
-    payload.documentFile.rawData != undefined
-  ) {
-    const documentPayloadFileUrl = payload.documentFile.fileUrl;
-    const documentFileId = documentPayloadFileUrl.split(DRIVE_URL_FILE_PATH)[1];
-
-    // Delete image
-    await deleteFile(
-      driveService,
-      documentFileId,
-    );
-
-    const documentFolderId = foldersIdResponse.data.values[0][3];
-    documentFileUrl = await uploadRutFile(
-      payload.document,
-      documentFolderId,
-      payload.documentFile.mimeType,
-      payload.documentFile.rawData,
-    );
-  } else {
-    documentFileUrl = payload.documentFile.fileUrl;
-  }
+  // Update document file
+  const documentFileUrl = await updateDocumentFile(
+    payload,
+    foldersIdResponse.data.values[0][3]
+  );
 
   rows.push([
     payload.id,
