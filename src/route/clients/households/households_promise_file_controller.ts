@@ -11,6 +11,7 @@ import {
  * Get promise filename.
  * @param {any} payload of promise household client.
  * @param {any} mimeType mimeType file.
+ * @return {string} filename.
  */
 export function getPromiseFilename(
   payload: any,
@@ -44,7 +45,6 @@ export async function uploadPromiseFile(
   const driveService = getDriveInstance();
   const payloadFile = payload.promiseFile;
   const filename = getPromiseFilename(payload, payloadFile.mimeType);
-  
 
   const uploadFileResponse = await uploadFile(
     driveService,
@@ -96,7 +96,7 @@ export async function updatePromiseFile(
     );
 
     const filename = getPromiseFilename(
-      payload, 
+      payload,
       currentFile.mimeType
     );
 

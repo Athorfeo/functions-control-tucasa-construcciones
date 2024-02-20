@@ -8,12 +8,12 @@ import {
 } from "../../../util/drive_util";
 
 /**
- * Get invoice filename.
- * @param {any} payload of invoice household client.
+ * Get Payment filename.
+ * @param {any} payload of Payment household client.
  * @param {any} mimeType mimeType file.
  * @return {string} filename.
  */
-export function getInvoiceFilename(
+export function getPaymentFilename(
   payload: any,
   mimeType: string,
 ): string {
@@ -21,13 +21,9 @@ export function getInvoiceFilename(
 
   const filenameBuilder = [];
   filenameBuilder.push(
-    "factura",
-    "-",
-    "venta",
+    "pago",
     "-",
     payload.document,
-    "-",
-    payload.numberHousehold,
     ".",
     fileExtension,
   );
@@ -36,17 +32,17 @@ export function getInvoiceFilename(
 }
 
 /**
- * Upload invoice file.
- * @param {any} payload of invoice household client.
+ * Upload Payment file.
+ * @param {any} payload of Payment client.
  * @param {any} folderId folder id.
  */
-export async function uploadInvoiceFile(
+export async function uploadPaymentFile(
   payload: any,
   folderId: string,
 ): Promise<any> {
   const driveService = getDriveInstance();
-  const payloadFile = payload.invoiceFile;
-  const filename = getInvoiceFilename(
+  const payloadFile = payload.paymentFile;
+  const filename = getPaymentFilename(
     payload,
     payloadFile.mimeType
   );
@@ -65,18 +61,18 @@ export async function uploadInvoiceFile(
 }
 
 /**
- * Update invoice file.
- * @param {any} payload of invoice household client.
+ * Update Payment file.
+ * @param {any} payload of Payment household client.
  * @param {any} folderId folder id.
  */
-export async function updateInvoiceFile(
+export async function updatePaymentFile(
   payload: any,
   folderId: string,
 ): Promise<any> {
   const driveService = getDriveInstance();
   let fileUrl = "";
 
-  const payloadFile = payload.invoiceFile;
+  const payloadFile = payload.paymentFile;
   const payloadFileUrl = payloadFile.fileUrl;
 
   const fileId = payloadFileUrl.split(DRIVE_URL_FILE_PATH)[1];
@@ -90,7 +86,7 @@ export async function updateInvoiceFile(
       fileId,
     );
 
-    fileUrl = await uploadInvoiceFile(
+    fileUrl = await uploadPaymentFile(
       payload,
       folderId
     );
@@ -100,7 +96,7 @@ export async function updateInvoiceFile(
       fileId,
     );
 
-    const filename = getInvoiceFilename(
+    const filename = getPaymentFilename(
       payload,
       currentFile.mimeType
     );

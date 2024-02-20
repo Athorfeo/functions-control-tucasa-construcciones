@@ -10,6 +10,10 @@ import {
   appendHousehold,
   updateHousehold,
 } from "./households/households_controller";
+import {
+  appendPayment,
+  updatePayment,
+} from "./payments/payments_controller";
 
 import express = require("express");
 
@@ -194,6 +198,62 @@ route.post(
       const payload = req.body.data;
 
       const response = await updateHousehold(
+        spreadsheetId,
+        payload
+      );
+
+      res.status(200).send(response);
+    } catch (error) {
+      console.log(error);
+      res.status(500).send();
+    }
+  }
+);
+
+
+/**
+ * Append household
+ * Developed by Juan Ortiz
+ */
+route.put(
+  "/payments/",
+  async (req: any, res: any) => {
+    try {
+      console.log("Payments clients | Append row");
+      console.log(`RequestBody: ${JSON.stringify(req.body)}`);
+
+      const spreadsheetId = req.get(HEADER_KEYS.spreadsheetId);
+      const payload = req.body.data;
+
+      const response = await appendPayment(
+        spreadsheetId,
+        payload
+      );
+
+      res.status(200).send(response);
+    } catch (error) {
+      console.log(error);
+      res.status(500).send();
+    }
+  }
+);
+
+
+/**
+ * Update
+ * Developed by Juan Ortiz
+ */
+route.post(
+  "/payments/",
+  async (req: any, res: any) => {
+    try {
+      console.log("Payments clients | Update");
+      console.log(`RequestBody: ${JSON.stringify(req.body)}`);
+
+      const spreadsheetId = req.get(HEADER_KEYS.spreadsheetId);
+      const payload = req.body.data;
+
+      const response = await updatePayment(
         spreadsheetId,
         payload
       );

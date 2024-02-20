@@ -92,12 +92,14 @@ export async function getByRange(
   );
 
   const rangeResponseHouseholds = sheetResponse.data.range;
-  const startPositionHouseholds = getRangeStartPosition(rangeResponseHouseholds);
+  const startPositionHouseholds = getRangeStartPosition(
+    rangeResponseHouseholds
+  );
 
   const rowsHouseholds: any[][] = [];
 
   sheetResponseHouseholds.data.values.forEach((item: any, index: number) => {
-    if(data.document === item[2]) {
+    if (data.document === item[2]) {
       rowsHouseholds.push(parseHouseholdsRow(
         startPositionHouseholds + index,
         item
@@ -108,7 +110,7 @@ export async function getByRange(
   data.households = rowsHouseholds;
 
   // Get payments
-  const rangePayments = "pagos!A3:I";
+  const rangePayments = "pagos!A3:J";
   const sheetResponsePayments = await sheetsGet(
     sheets,
     googleAuth,
@@ -122,7 +124,7 @@ export async function getByRange(
   const rowsPayments: any[][] = [];
 
   sheetResponsePayments.data.values.forEach((item: any, index: number) => {
-    if(data.document === item[3]) {
+    if (data.document === item[3]) {
       rowsPayments.push(parsePaymentsRow(
         startPositionPayments + index,
         item

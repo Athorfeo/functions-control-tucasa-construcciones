@@ -48,7 +48,7 @@ export function parseHouseholdsRow(
   if (values[7] != undefined) {
     promiseFileUrl = values[7];
   }
-  
+
   let invoiceFileUrl= "";
   if (values[8] != undefined) {
     invoiceFileUrl = values[8];
@@ -70,7 +70,7 @@ export function parseHouseholdsRow(
     Balance: values[6],
     promiseFileUrl: promiseFileUrl,
     invoiceFileUrl: invoiceFileUrl,
-    certificateFileUrl: certificateFileUrl
+    certificateFileUrl: certificateFileUrl,
   };
 
   return row;
@@ -97,9 +97,9 @@ export function parsePaymentsRow(
     createdDate: values[1],
     paymentDate: values[2],
     document: values[3],
-    value: values[4],
+    amount: values[4],
     paymentType: values[5],
-    detail: values[6],
+    bank: values[6],
     observations: values[7],
     supportFileUrl: supportFileUrl,
     accountingDocument: values[9],

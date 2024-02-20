@@ -11,6 +11,7 @@ import {
  * Get Certificate filename.
  * @param {any} payload of Certificate household client.
  * @param {any} mimeType mimeType file.
+ * @return {string} filename.
  */
 export function getCertificateFilename(
   payload: any,
@@ -46,8 +47,8 @@ export async function uploadCertificateFile(
   const driveService = getDriveInstance();
   const payloadFile = payload.certificateFile;
   const filename = getCertificateFilename(
-    payload, 
-    payloadFile.mimeType
+    payload,
+    payloadFile.mimeType,
   );
 
   const uploadFileResponse = await uploadFile(
@@ -100,8 +101,8 @@ export async function updateCertificateFile(
     );
 
     const filename = getCertificateFilename(
-      payload, 
-      currentFile.mimeType
+      payload,
+      currentFile.mimeType,
     );
 
     await updateFilename(

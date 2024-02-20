@@ -11,6 +11,7 @@ import {
  * Get rut filename.
  * @param {any} document of rut owner.
  * @param {any} mimeType mimeType file.
+ * @return {string} filename.
  */
 export function getRutFilename(
   document: string,
@@ -35,6 +36,7 @@ export function getRutFilename(
  * @param {any} folderId folder id.
  * @param {any} mimeType mimeType file.
  * @param {any} rawData mimeType file.
+ * @return {Promise<any>} promise for result to upload file.
  */
 export async function uploadRutFile(
   document: string,
@@ -62,6 +64,7 @@ export async function uploadRutFile(
  * Update rut file.
  * @param {any} payload of rut owner.
  * @param {any} folderId folder id.
+ * @return {Promise<any>} promise for result to update file.
  */
 export async function updateRutFile(
   payload: any,
@@ -112,6 +115,7 @@ export async function updateRutFile(
  * Get document filename.
  * @param {any} document of rut owner.
  * @param {any} mimeType mimeType file.
+ * @return {string} filename.
  */
 export function getDocumentFilename(
   document: string,
@@ -136,6 +140,7 @@ export function getDocumentFilename(
  * @param {any} folderId folder id.
  * @param {any} mimeType mimeType file.
  * @param {any} rawData mimeType file.
+ * @return {Promise<any>} promise for result to upload file.
  */
 export async function uploadDocumentFile(
   document: string,
@@ -163,6 +168,7 @@ export async function uploadDocumentFile(
  * Update rut file.
  * @param {any} payload of rut owner.
  * @param {any} folderId folder id.
+ * @return {Promise<any>} promise for result to update file.
  */
 export async function updateDocumentFile(
   payload: any,

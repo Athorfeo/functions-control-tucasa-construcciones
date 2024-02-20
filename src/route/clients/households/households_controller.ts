@@ -7,7 +7,7 @@ import {
   sheetsGet,
   sheetsAppend,
   sheetUpdateRows,
-  updateLastId
+  updateLastId,
 } from "../../../util/sheets_util";
 import {
   uploadPromiseFile,
@@ -141,24 +141,24 @@ export async function updateHousehold(
   );
 
   validateSheetResponse(foldersIdResponse);
-  
+
   // Update promise file
   const promiseFolderId = foldersIdResponse.data.values[0][1];
-  let promiseFileUrl = await updatePromiseFile(
+  const promiseFileUrl = await updatePromiseFile(
     payload,
-    promiseFolderId
+    promiseFolderId,
   );
 
   // Update invoice file
   const invoiceFolderId = foldersIdResponse.data.values[0][3];
-  let invoiceFileUrl = await updateInvoiceFile(
+  const invoiceFileUrl = await updateInvoiceFile(
     payload,
     invoiceFolderId
   );
-  
+
   // Update certificate file
   const certificateFolderId = foldersIdResponse.data.values[0][5];
-  let certificateFileUrl = await updateCertificateFile(
+  const certificateFileUrl = await updateCertificateFile(
     payload,
     certificateFolderId
   );
