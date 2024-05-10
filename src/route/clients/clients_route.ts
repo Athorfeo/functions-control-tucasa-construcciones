@@ -9,6 +9,7 @@ import {
 import {
   appendHousehold,
   updateHousehold,
+  deleteHousehold
 } from "./households/households_controller";
 import {
   appendPayment,
@@ -82,7 +83,7 @@ route.put(
   "/",
   async (req: any, res: any) => {
     try {
-      console.log("Purchase Petty Cash | Append row");
+      console.log("Clients | Append row");
       console.log(`RequestBody: ${JSON.stringify(req.body)}`);
 
       const spreadsheetId = req.get(HEADER_KEYS.spreadsheetId);
@@ -109,7 +110,34 @@ route.post(
   "/",
   async (req: any, res: any) => {
     try {
-      console.log("Purchase Invoice | Update");
+      console.log("Clients | Update");
+      console.log(`RequestBody: ${JSON.stringify(req.body)}`);
+
+      const spreadsheetId = req.get(HEADER_KEYS.spreadsheetId);
+      const payload = req.body.data;
+
+      const response = await update(
+        spreadsheetId,
+        payload
+      );
+
+      res.status(200).send(response);
+    } catch (error) {
+      console.log(error);
+      res.status(500).send();
+    }
+  }
+);
+
+/**
+ * Delete
+ * Developed by Juan Ortiz
+ */
+route.delete(
+  "/",
+  async (req: any, res: any) => {
+    try {
+      console.log("Clients | Update");
       console.log(`RequestBody: ${JSON.stringify(req.body)}`);
 
       const spreadsheetId = req.get(HEADER_KEYS.spreadsheetId);
@@ -136,7 +164,7 @@ route.post(
   "/accountingdocument",
   async (req: any, res: any) => {
     try {
-      console.log("Purchase Petty Cash | Accounting Document");
+      console.log("Clients | Accounting Document");
       console.log(`RequestBody: ${JSON.stringify(req.body)}`);
 
       const spreadsheetId = req.get(HEADER_KEYS.spreadsheetId);
@@ -200,6 +228,33 @@ route.post(
       const response = await updateHousehold(
         spreadsheetId,
         payload
+      );
+
+      res.status(200).send(response);
+    } catch (error) {
+      console.log(error);
+      res.status(500).send();
+    }
+  }
+);
+
+/**
+ * Delete Household
+ * Developed by Juan Ortiz
+ */
+route.delete(
+  "/households/",
+  async (req: any, res: any) => {
+    try {
+      console.log("Clients households | Delete");
+      console.log(`RequestBody: ${JSON.stringify(req.body)}`);
+
+      const spreadsheetId = req.get(HEADER_KEYS.spreadsheetId);
+      const payload = req.body.data;
+
+      const response = await deleteHousehold(
+        spreadsheetId,
+        payload,
       );
 
       res.status(200).send(response);

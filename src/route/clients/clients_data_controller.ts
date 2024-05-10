@@ -67,7 +67,7 @@ export function parseHouseholdsRow(
     numberHousehold: values[3],
     value: values[4],
     initialFee: values[5],
-    Balance: values[6],
+    balance: values[6],
     promiseFileUrl: promiseFileUrl,
     invoiceFileUrl: invoiceFileUrl,
     certificateFileUrl: certificateFileUrl,

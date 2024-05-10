@@ -91,21 +91,24 @@ export async function getByRange(
     rangeHouseholds,
   );
 
-  const rangeResponseHouseholds = sheetResponse.data.range;
-  const startPositionHouseholds = getRangeStartPosition(
-    rangeResponseHouseholds
-  );
-
   const rowsHouseholds: any[][] = [];
 
-  sheetResponseHouseholds.data.values.forEach((item: any, index: number) => {
-    if (data.document === item[2]) {
-      rowsHouseholds.push(parseHouseholdsRow(
-        startPositionHouseholds + index,
-        item
-      ));
-    }
-  });
+  if (sheetResponseHouseholds.data.values != undefined) {
+    const rangeResponseHouseholds = sheetResponse.data.range;
+    const startPositionHouseholds = getRangeStartPosition(
+      rangeResponseHouseholds
+    );
+  
+    
+    sheetResponseHouseholds.data.values.forEach((item: any, index: number) => {
+      if (data.document === item[2]) {
+        rowsHouseholds.push(parseHouseholdsRow(
+          startPositionHouseholds + index,
+          item
+        ));
+      }
+    });
+  }
 
   data.households = rowsHouseholds;
 

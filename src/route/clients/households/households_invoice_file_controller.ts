@@ -116,3 +116,19 @@ export async function updateInvoiceFile(
 
   return fileUrl;
 }
+
+/**
+ * Delete invoice file.
+ * @param {any} payload of Invoice household client.
+ */
+export async function deleteInvoiceFile(
+  payload: any
+) {
+  const driveService = getDriveInstance();
+  const payloadFileUrl = payload.invoiceFileUrl;
+  const fileId = payloadFileUrl.split(DRIVE_URL_FILE_PATH)[1];
+  await deleteFile(
+    driveService,
+    fileId,
+  );
+}

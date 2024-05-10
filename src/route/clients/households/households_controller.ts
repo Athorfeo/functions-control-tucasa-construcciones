@@ -8,18 +8,22 @@ import {
   sheetsAppend,
   sheetUpdateRows,
   updateLastId,
+  deleteRowsSheet
 } from "../../../util/sheets_util";
 import {
   uploadPromiseFile,
   updatePromiseFile,
+  deletePromiseFile,
 } from "./households_promise_file_controller";
 import {
   uploadInvoiceFile,
   updateInvoiceFile,
+  deleteInvoiceFile,
 } from "./households_invoice_file_controller";
 import {
   uploadCertificateFile,
   updateCertificateFile,
+  deleteCertificateFile,
 } from "./households_certificate_file_controller";
 
 export const sheetName = "viviendas";
@@ -185,6 +189,54 @@ export async function updateHousehold(
       rows,
     )
   );
+  const response = {
+    data: {
+      id: payload.id,
+    },
+  };
+
+  return response;
+}
+
+/**
+ * Delete household.
+ * @param {any} spreadsheetId spreadsheetId value.
+ * @param {number} position position of sheet.
+ */
+export async function deleteHousehold(
+  spreadsheetId: string,
+  payload: any
+): Promise<any> {
+  const sheets = getSheetInstance();
+
+  await deletePromiseFile(payload);
+  await deleteInvoiceFile(payload);
+  await deleteCertificateFile(payload);
+
+  const spreadsheet = await sheets.spreadsheets.get({
+    spreadsheetId: spreadsheetId,
+    ranges: [sheetName],
+    includeGridData: false,  
+    auth: googleAuth
+  });
+
+  const sheetId = spreadsheet.data.sheets?.find(item => 
+    item.properties?.title === sheetName
+  )?.properties?.sheetId ?? -1;
+
+  const position = Number(payload.position);
+
+  const sheetResponse = await deleteRowsSheet(
+    sheets,
+    googleAuth,
+    spreadsheetId,
+    sheetId,
+    position,
+    position,
+  );
+
+  validateSheetResponse(sheetResponse);
+
   const response = {
     data: {
       id: payload.id,

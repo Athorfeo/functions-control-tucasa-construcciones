@@ -116,3 +116,19 @@ export async function updateCertificateFile(
 
   return fileUrl;
 }
+
+/**
+ * Delete Certificate file.
+ * @param {any} payload of Certificate household client.
+ */
+export async function deleteCertificateFile(
+  payload: any
+) {
+  const driveService = getDriveInstance();
+  const payloadFileUrl = payload.certificateFileUrl;
+  const fileId = payloadFileUrl.split(DRIVE_URL_FILE_PATH)[1];
+  await deleteFile(
+    driveService,
+    fileId,
+  );
+}

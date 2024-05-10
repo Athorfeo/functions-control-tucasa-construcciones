@@ -111,3 +111,19 @@ export async function updatePromiseFile(
 
   return fileUrl;
 }
+
+/**
+ * Delete promise file.
+ * @param {any} payload of Promise household client.
+ */
+export async function deletePromiseFile(
+  payload: any
+) {
+  const driveService = getDriveInstance();
+  const payloadFileUrl = payload.promiseFileUrl;
+  const fileId = payloadFileUrl.split(DRIVE_URL_FILE_PATH)[1];
+  await deleteFile(
+    driveService,
+    fileId,
+  );
+}
