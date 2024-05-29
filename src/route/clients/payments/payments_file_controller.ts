@@ -112,3 +112,20 @@ export async function updatePaymentFile(
 
   return fileUrl;
 }
+
+
+/**
+ * Delete Payment file.
+ * @param {any} payload of Payment client.
+ */
+export async function deletePaymentFile(
+  payload: any
+) {
+  const driveService = getDriveInstance();
+  const payloadFileUrl = payload.paymentFileUrl;
+  const fileId = payloadFileUrl.split(DRIVE_URL_FILE_PATH)[1];
+  await deleteFile(
+    driveService,
+    fileId,
+  );
+}

@@ -86,9 +86,9 @@ export function parsePaymentsRow(
   position: number,
   values: any[]
 ): any {
-  let supportFileUrl= "";
+  let paymentFileUrl= "";
   if (values[8] != undefined) {
-    supportFileUrl = values[8];
+    paymentFileUrl = values[8];
   }
 
   const row = {
@@ -101,7 +101,7 @@ export function parsePaymentsRow(
     paymentType: values[5],
     bank: values[6],
     observations: values[7],
-    supportFileUrl: supportFileUrl,
+    paymentFileUrl: paymentFileUrl,
     accountingDocument: values[9],
   };
 

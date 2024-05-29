@@ -8,10 +8,12 @@ import {
   sheetsAppend,
   sheetUpdateRows,
   updateLastId,
+  deleteRowsSheet,
 } from "../../../util/sheets_util";
 import {
   uploadPaymentFile,
   updatePaymentFile,
+  deletePaymentFile,
 } from "./payments_file_controller";
 
 export const sheetName = "pagos";
@@ -159,3 +161,50 @@ export async function updatePayment(
 
   return response;
 }
+
+/**
+ * Delete payment.
+ * @param {any} spreadsheetId spreadsheetId value.
+ * @param {any} payload payload value.
+ */
+export async function deletePayment(
+  spreadsheetId: string,
+  payload: any
+): Promise<any> {
+  const sheets = getSheetInstance();
+
+  await deletePaymentFile(payload);
+
+  const spreadsheet = await sheets.spreadsheets.get({
+    spreadsheetId: spreadsheetId,
+    ranges: [sheetName],
+    includeGridData: false,
+    auth: googleAuth,
+  });
+
+  const sheetId = spreadsheet.data.sheets?.find((item) => {
+    item.properties?.title === sheetName;
+  })?.properties?.sheetId ?? -1;
+
+  const position = Number(payload.position);
+
+  const sheetResponse = await deleteRowsSheet(
+    sheets,
+    googleAuth,
+    spreadsheetId,
+    sheetId,
+    position,
+    position,
+  );
+
+  validateSheetResponse(sheetResponse);
+
+  const response = {
+    data: {
+      id: payload.id,
+    },
+  };
+
+  return response;
+}
+

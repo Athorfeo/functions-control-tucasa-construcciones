@@ -98,8 +98,7 @@ export async function getByRange(
     const startPositionHouseholds = getRangeStartPosition(
       rangeResponseHouseholds
     );
-  
-    
+
     sheetResponseHouseholds.data.values.forEach((item: any, index: number) => {
       if (data.document === item[2]) {
         rowsHouseholds.push(parseHouseholdsRow(

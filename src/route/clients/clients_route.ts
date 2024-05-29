@@ -9,11 +9,12 @@ import {
 import {
   appendHousehold,
   updateHousehold,
-  deleteHousehold
+  deleteHousehold,
 } from "./households/households_controller";
 import {
   appendPayment,
   updatePayment,
+  deletePayment,
 } from "./payments/payments_controller";
 
 import express = require("express");
@@ -267,7 +268,7 @@ route.delete(
 
 
 /**
- * Append household
+ * Append Payment
  * Developed by Juan Ortiz
  */
 route.put(
@@ -295,7 +296,7 @@ route.put(
 
 
 /**
- * Update
+ * Update Payment
  * Developed by Juan Ortiz
  */
 route.post(
@@ -311,6 +312,33 @@ route.post(
       const response = await updatePayment(
         spreadsheetId,
         payload
+      );
+
+      res.status(200).send(response);
+    } catch (error) {
+      console.log(error);
+      res.status(500).send();
+    }
+  }
+);
+
+/**
+ * Delete Household
+ * Developed by Juan Ortiz
+ */
+route.delete(
+  "/payments/",
+  async (req: any, res: any) => {
+    try {
+      console.log("Clients > Payments | Delete");
+      console.log(`RequestBody: ${JSON.stringify(req.body)}`);
+
+      const spreadsheetId = req.get(HEADER_KEYS.spreadsheetId);
+      const payload = req.body.data;
+
+      const response = await deletePayment(
+        spreadsheetId,
+        payload,
       );
 
       res.status(200).send(response);
