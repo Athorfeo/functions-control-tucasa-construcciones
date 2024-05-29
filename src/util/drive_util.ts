@@ -16,6 +16,25 @@ export function getDriveInstance() {
 }
 
 /**
+ * Get file.
+ * @param {any} service Drive instance.
+ * @param {any} fileId file id.
+ * @return {any} result of execution.
+ */
+export async function getFile(
+  service: any,
+  fileId: string,
+): Promise<any> {
+  const response = await service.files.get({
+    fileId: fileId,
+  });
+
+  validateGoogleResponse(response);
+
+  return response.data;
+}
+
+/**
  * Upload image.
  * @param {any} service Drive instance.
  * @param {any} folderId spreadsheetId value.

@@ -189,7 +189,7 @@ export async function deleteRowsSheet(
 }
 
 /**
- * Delete rows from a Sheet.
+ * Get start position from sheet range.
  * @param {any} range range of sheet value.
  * @return {number} Range start position of sheet value.
  */

@@ -19,6 +19,9 @@ import {
 import {
   route as pettycashPurchaseRoute,
 } from "./route/purchase/pettycash/pettycash_purchase_route";
+import {
+  route as clientsRoute,
+} from "./route/clients/clients_route";
 
 const api = express();
 
@@ -39,5 +42,6 @@ api.use("/purchase/order", orderPurchaseRoute);
 api.use("/purchase/invoice", invoicePurchaseRoute);
 api.use("/purchase/pettycash", pettycashPurchaseRoute);
 api.use("/service/minute", minuteServiceRoute);
+api.use("/clients", clientsRoute);
 
 exports.api = functions.https.onRequest(api);
