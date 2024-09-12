@@ -55,10 +55,13 @@ export async function appendPayment(
 
   const paymentFolderId = foldersIdResponse.data.values[0][1];
 
-  const paymentFileUrl = await uploadPaymentFile(
-    payload,
-    paymentFolderId
-  );
+  let paymentFileUrl = "";
+  if (payload.paymentFile.rawData !== undefined) {
+    paymentFileUrl = await uploadPaymentFile(
+      payload,
+      paymentFolderId
+    );
+  }
 
   rows.push([
     id,

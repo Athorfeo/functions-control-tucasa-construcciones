@@ -74,16 +74,22 @@ export async function updateRutFile(
   let fileUrl = "";
 
   const payloadFileUrl = payload.rutFile.fileUrl;
-  const fileId = payloadFileUrl.split(DRIVE_URL_FILE_PATH)[1];
+
+  let fileId = null;
+  if (payloadFileUrl !== "") {
+    fileId = payloadFileUrl.split(DRIVE_URL_FILE_PATH)[1];
+  }
 
   if (
     payload.rutFile.mimeType != undefined &&
     payload.rutFile.rawData != undefined
   ) {
-    await deleteFile(
-      driveService,
-      fileId,
-    );
+    if (fileId !== null) {
+      await deleteFile(
+        driveService,
+        fileId,
+      );
+    }
 
     fileUrl = await uploadRutFile(
       payload.document,
@@ -91,7 +97,7 @@ export async function updateRutFile(
       payload.rutFile.mimeType,
       payload.rutFile.rawData,
     );
-  } else {
+  } else if (fileId !== null) {
     const currentFile = await getFile(
       driveService,
       fileId,
@@ -179,16 +185,22 @@ export async function updateDocumentFile(
 
   const payloadFile = payload.documentFile;
   const payloadFileUrl = payloadFile.fileUrl;
-  const fileId = payloadFileUrl.split(DRIVE_URL_FILE_PATH)[1];
+
+  let fileId = null;
+  if (payloadFileUrl !== "") {
+    fileId = payloadFileUrl.split(DRIVE_URL_FILE_PATH)[1];
+  }
 
   if (
     payloadFile.mimeType != undefined &&
     payloadFile.rawData != undefined
   ) {
-    await deleteFile(
-      driveService,
-      fileId,
-    );
+    if (fileId !== null) {
+      await deleteFile(
+        driveService,
+        fileId,
+      );
+    }
 
     fileUrl = await uploadDocumentFile(
       payload.document,
@@ -196,7 +208,7 @@ export async function updateDocumentFile(
       payloadFile.mimeType,
       payloadFile.rawData,
     );
-  } else {
+  } else if (fileId !== null) {
     const currentFile = await getFile(
       driveService,
       fileId,

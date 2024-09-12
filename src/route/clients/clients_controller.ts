@@ -94,7 +94,7 @@ export async function getByRange(
   const rowsHouseholds: any[][] = [];
 
   if (sheetResponseHouseholds.data.values != undefined) {
-    const rangeResponseHouseholds = sheetResponse.data.range;
+    const rangeResponseHouseholds = sheetResponseHouseholds.data.range;
     const startPositionHouseholds = getRangeStartPosition(
       rangeResponseHouseholds
     );
@@ -120,22 +120,23 @@ export async function getByRange(
     rangePayments,
   );
 
-  const rangeResponsePayments = sheetResponse.data.range;
-  const startPositionPayments = getRangeStartPosition(rangeResponsePayments);
-
   const rowsPayments: any[][] = [];
 
-  sheetResponsePayments.data.values.forEach((item: any, index: number) => {
-    if (data.document === item[3]) {
-      rowsPayments.push(parsePaymentsRow(
-        startPositionPayments + index,
-        item
-      ));
-    }
-  });
+  if (sheetResponsePayments.data.values != undefined) {
+    const rangeResponsePayments = sheetResponsePayments.data.range;
+    const startPositionPayments = getRangeStartPosition(rangeResponsePayments);
+
+    sheetResponsePayments.data.values.forEach((item: any, index: number) => {
+      if (data.document === item[3]) {
+        rowsPayments.push(parsePaymentsRow(
+          startPositionPayments + index,
+          item
+        ));
+      }
+    });
+  }
 
   data.payments = rowsPayments;
-
   console.log(`Data: ${JSON.stringify(data)}`);
 
   const response = {
@@ -183,19 +184,27 @@ export async function append(
   const rutFolderId = foldersIdResponse.data.values[0][1];
   const documentFolderId = foldersIdResponse.data.values[0][3];
 
-  const rutFileUrl = await uploadRutFile(
-    payload.document,
-    rutFolderId,
-    payload.rutFile.mimeType,
-    payload.rutFile.rawData,
-  );
+  // Update rut file
+  let rutFileUrl = "";
+  if (payload.rutFile !== null) {
+    rutFileUrl = await uploadRutFile(
+      payload.document,
+      rutFolderId,
+      payload.rutFile.mimeType,
+      payload.rutFile.rawData,
+    );
+  }
 
-  const documentFileUrl = await uploadDocumentFile(
-    payload.document,
-    documentFolderId,
-    payload.documentFile.mimeType,
-    payload.documentFile.rawData,
-  );
+  // Update document file
+  let documentFileUrl = "";
+  if (payload.documentFile !== null) {
+    documentFileUrl = await uploadDocumentFile(
+      payload.document,
+      documentFolderId,
+      payload.documentFile.mimeType,
+      payload.documentFile.rawData,
+    );
+  }
 
   rows.push([
     id,

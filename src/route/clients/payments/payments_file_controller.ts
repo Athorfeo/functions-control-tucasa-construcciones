@@ -75,22 +75,27 @@ export async function updatePaymentFile(
   const payloadFile = payload.paymentFile;
   const payloadFileUrl = payloadFile.fileUrl;
 
-  const fileId = payloadFileUrl.split(DRIVE_URL_FILE_PATH)[1];
+  let fileId = null;
+  if (payloadFileUrl !== "") {
+    fileId = payloadFileUrl.split(DRIVE_URL_FILE_PATH)[1];
+  }
 
   if (
     payloadFile.mimeType != undefined &&
     payloadFile.rawData != undefined
   ) {
-    await deleteFile(
-      driveService,
-      fileId,
-    );
+    if (fileId !== null) {
+      await deleteFile(
+        driveService,
+        fileId,
+      );
+    }
 
     fileUrl = await uploadPaymentFile(
       payload,
       folderId
     );
-  } else {
+  } else if (fileId !== null) {
     const currentFile = await getFile(
       driveService,
       fileId,

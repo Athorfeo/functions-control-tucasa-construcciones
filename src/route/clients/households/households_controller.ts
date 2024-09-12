@@ -67,20 +67,29 @@ export async function appendHousehold(
   const invoiceFolderId = foldersIdResponse.data.values[0][3];
   const certificateFolderId = foldersIdResponse.data.values[0][5];
 
-  const promiseFileUrl = await uploadPromiseFile(
-    payload,
-    promiseFolderId
-  );
+  let promiseFileUrl = "";
+  if (payload.promiseFile.mimeType !== undefined) {
+    promiseFileUrl = await uploadPromiseFile(
+      payload,
+      promiseFolderId
+    );
+  }
 
-  const invoiceFileUrl = await uploadInvoiceFile(
-    payload,
-    invoiceFolderId
-  );
+  let invoiceFileUrl = "";
+  if (payload.invoiceFile.mimeType !== undefined) {
+    invoiceFileUrl = await uploadInvoiceFile(
+      payload,
+      invoiceFolderId
+    );
+  }
 
-  const certificateFileUrl = await uploadCertificateFile(
-    payload,
-    certificateFolderId
-  );
+  let certificateFileUrl = "";
+  if (payload.certificateFile.mimeType !== undefined) {
+    certificateFileUrl = await uploadCertificateFile(
+      payload,
+      certificateFolderId
+    );
+  }
 
   rows.push([
     id,

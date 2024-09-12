@@ -221,7 +221,7 @@ route.post(
   async (req: any, res: any) => {
     try {
       console.log("Clients households | Update");
-      console.log(`RequestBody: ${JSON.stringify(req.body)}`);
+      //  console.log(`RequestBody: ${JSON.stringify(req.body)}`);
 
       const spreadsheetId = req.get(HEADER_KEYS.spreadsheetId);
       const payload = req.body.data;
