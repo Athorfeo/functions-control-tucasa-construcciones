@@ -13,7 +13,7 @@ export function parseSupplierRow(
   if (values[10] != undefined) {
     rutFileUrl = values[10];
   }
-  
+
   const data = {
     position: position,
     id: values[0],
