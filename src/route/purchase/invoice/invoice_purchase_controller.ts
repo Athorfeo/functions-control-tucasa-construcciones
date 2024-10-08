@@ -320,10 +320,14 @@ export async function update(
     payload.photoInvoice.rawData != undefined
   ) {
     // Delete image
-    await deleteFile(
-      driveService,
-      fileIdSplitted,
-    );
+    try {
+      await deleteFile(
+        driveService,
+        fileIdSplitted,
+      );
+    } catch (exception) {
+      // Error
+    }
 
     const invoiceFolderId = photoFoldersResponse.data.values[0][1];
     const mimeTypeFile = payload.photoInvoice.mimeType;

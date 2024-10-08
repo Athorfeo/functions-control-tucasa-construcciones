@@ -8,50 +8,51 @@ import {
 } from "../../../util/drive_util";
 
 /**
- * Get promise filename.
- * @param {any} payload of promise household client.
+ * Get rut filename.
+ * @param {any} document of rut owner.
  * @param {any} mimeType mimeType file.
  * @return {string} filename.
  */
-export function getPromiseFilename(
-  payload: any,
+export function getRutFilename(
+  document: string,
   mimeType: string,
 ): string {
   const fileExtension = mimeType.split("/")[1];
 
   const filenameBuilder = [];
   filenameBuilder.push(
-    "promesa",
+    "rut",
     "-",
-    payload.document,
-    "-",
-    payload.numberHousehold,
+    document,
     ".",
     fileExtension,
   );
-
   return filenameBuilder.join("");
 }
 
 /**
- * Upload promise file.
- * @param {any} payload of promise household client.
+ * Upload rut file.
+ * @param {any} document of rut owner.
  * @param {any} folderId folder id.
+ * @param {any} mimeType mimeType file.
+ * @param {any} rawData mimeType file.
+ * @return {Promise<any>} promise for result to upload file.
  */
-export async function uploadPromiseFile(
-  payload: any,
+export async function uploadRutFile(
+  document: string,
   folderId: string,
+  mimeType: string,
+  rawData: string,
 ): Promise<any> {
   const driveService = getDriveInstance();
-  const payloadFile = payload.promiseFile;
-  const filename = getPromiseFilename(payload, payloadFile.mimeType);
+  const filename = getRutFilename(document, mimeType);
 
   const uploadFileResponse = await uploadFile(
     driveService,
     folderId,
     filename,
-    payloadFile.mimeType,
-    payloadFile.rawData,
+    mimeType,
+    rawData,
   );
 
   const fileUrl = DRIVE_URL_FILE_PATH + uploadFileResponse.id;
@@ -60,19 +61,19 @@ export async function uploadPromiseFile(
 }
 
 /**
- * Update promise file.
- * @param {any} payload of promise household client.
+ * Update rut file.
+ * @param {any} payload of rut owner.
  * @param {any} folderId folder id.
+ * @return {Promise<any>} promise for result to update file.
  */
-export async function updatePromiseFile(
+export async function updateRutFile(
   payload: any,
   folderId: string,
 ): Promise<any> {
   const driveService = getDriveInstance();
   let fileUrl = "";
 
-  const payloadFile = payload.promiseFile;
-  const payloadFileUrl = payloadFile.fileUrl;
+  const payloadFileUrl = payload.rutFile.fileUrl;
 
   let fileId = null;
   if (payloadFileUrl !== "") {
@@ -80,8 +81,8 @@ export async function updatePromiseFile(
   }
 
   if (
-    payloadFile.mimeType != undefined &&
-    payloadFile.rawData != undefined
+    payload.rutFile.mimeType != undefined &&
+    payload.rutFile.rawData != undefined
   ) {
     if (fileId !== null) {
       try {
@@ -94,9 +95,11 @@ export async function updatePromiseFile(
       }
     }
 
-    fileUrl = await uploadPromiseFile(
-      payload,
-      folderId
+    fileUrl = await uploadRutFile(
+      payload.document,
+      folderId,
+      payload.rutFile.mimeType,
+      payload.rutFile.rawData,
     );
   } else if (fileId !== null) {
     const currentFile = await getFile(
@@ -104,10 +107,7 @@ export async function updatePromiseFile(
       fileId,
     );
 
-    const filename = getPromiseFilename(
-      payload,
-      currentFile.mimeType
-    );
+    const filename = getRutFilename(payload.document, currentFile.mimeType);
 
     await updateFilename(
       driveService,
@@ -115,24 +115,8 @@ export async function updatePromiseFile(
       filename,
     );
 
-    fileUrl = payloadFile.fileUrl;
+    fileUrl = payload.rutFile.fileUrl;
   }
 
   return fileUrl;
-}
-
-/**
- * Delete promise file.
- * @param {any} payload of Promise household client.
- */
-export async function deletePromiseFile(
-  payload: any
-) {
-  const driveService = getDriveInstance();
-  const payloadFileUrl = payload.promiseFileUrl;
-  const fileId = payloadFileUrl.split(DRIVE_URL_FILE_PATH)[1];
-  await deleteFile(
-    driveService,
-    fileId,
-  );
 }
