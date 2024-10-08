@@ -85,10 +85,14 @@ export async function updateRutFile(
     payload.rutFile.rawData != undefined
   ) {
     if (fileId !== null) {
-      await deleteFile(
-        driveService,
-        fileId,
-      );
+      try {
+        await deleteFile(
+          driveService,
+          fileId,
+        );
+      } catch (exception) {
+        // Error
+      }
     }
 
     fileUrl = await uploadRutFile(
@@ -196,10 +200,14 @@ export async function updateDocumentFile(
     payloadFile.rawData != undefined
   ) {
     if (fileId !== null) {
-      await deleteFile(
-        driveService,
-        fileId,
-      );
+      try {
+        await deleteFile(
+          driveService,
+          fileId,
+        );
+      } catch (exception) {
+        // Error
+      }
     }
 
     fileUrl = await uploadDocumentFile(

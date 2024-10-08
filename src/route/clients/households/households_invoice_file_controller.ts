@@ -89,10 +89,14 @@ export async function updateInvoiceFile(
     payloadFile.rawData != undefined
   ) {
     if (fileId !== null) {
-      await deleteFile(
-        driveService,
-        fileId,
-      );
+      try {
+        await deleteFile(
+          driveService,
+          fileId,
+        );
+      } catch (exception) {
+        // Error
+      }
     }
 
     fileUrl = await uploadInvoiceFile(

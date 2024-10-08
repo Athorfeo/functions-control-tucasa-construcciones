@@ -12,7 +12,7 @@ import {
 } from "../../../util/sheets_util";
 import {
   uploadRutFile,
-  updateRutFile
+  updateRutFile,
 } from "./suppliers_file_controller";
 import {
   parseSupplierRow,
@@ -58,7 +58,7 @@ export async function getByRange(
   position: string,
 ): Promise<any> {
   const sheets = getSheetInstance();
-  const range = sheetName + "!A" + position + ":H" + position;
+  const range = sheetName + "!A" + position + ":K" + position;
   const sheetResponse = await sheetsGet(
     sheets,
     googleAuth,
@@ -137,7 +137,7 @@ export async function append(
     payload.bankType,
     payload.accountType,
     payload.accountNumber,
-    rutFileUrl
+    rutFileUrl,
   ]);
 
   validateSheetResponse(
@@ -171,7 +171,6 @@ export async function append(
 
 /**
  * Update Supplier.
- * @param {any} spreadsheetId spreadsheetId value.
  * @param {any} payload payload value.
  */
 export async function update(
@@ -206,7 +205,7 @@ export async function update(
     payload.bankType,
     payload.accountType,
     payload.accountNumber,
-    rutFileUrl
+    rutFileUrl,
   ]);
 
   validateSheetResponse(

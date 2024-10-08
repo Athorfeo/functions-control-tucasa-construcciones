@@ -3,7 +3,7 @@ import * as express from "express";
 import * as cors from "cors";
 import bodyParser = require("body-parser");
 import {routeChapters} from "./route/data/data_chapters";
-//import {route as suppliersRoute} from "./route/data/suppliers";
+// import {route as suppliersRoute} from "./route/data/suppliers";
 import {route as contractorsRoute} from "./route/data/contractors";
 import {
   route as orderPurchaseRoute,
@@ -37,7 +37,7 @@ api.get("/", async (req, res) => {
 });
 
 api.use("/data/chapters", routeChapters);
-//api.use("/data/suppliers", suppliersRoute);
+// api.use("/data/suppliers", suppliersRoute);
 api.use("/data/contractors", contractorsRoute);
 api.use("/project", projectRoute);
 api.use("/user", userRoute);

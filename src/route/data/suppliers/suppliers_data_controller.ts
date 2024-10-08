@@ -13,6 +13,7 @@ export function parseSupplierRow(
   if (values[10] != undefined) {
     rutFileUrl = values[10];
   }
+  
   const data = {
     position: position,
     id: values[0],
@@ -25,7 +26,7 @@ export function parseSupplierRow(
     bankType: values[7],
     accountType: values[8],
     accountNumber: values[9],
-    rutFileUrl: rutFileUrl
+    rutFileUrl: rutFileUrl,
   };
 
   return data;
